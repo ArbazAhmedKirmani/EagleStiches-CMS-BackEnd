@@ -4,7 +4,6 @@ const axios = require("axios");
 exports.createOrder = async (req, res) => {
   try {
     const {
-      orderNumber,
       designFormat,
       orderMode,
       orderStatus,
@@ -16,14 +15,13 @@ exports.createOrder = async (req, res) => {
       deletedBy,
     } = req.body;
     const order = new Order({
-      orderNumber,
+      $inc: { orderNumber: 1 },
       designFormat,
       orderMode,
       orderStatus,
       orderHistory,
       createdBy,
       modifiedBy,
-      status,
       isDeleted,
       deletedAt,
       deletedBy,

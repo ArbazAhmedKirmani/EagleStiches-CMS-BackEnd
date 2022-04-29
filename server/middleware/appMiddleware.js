@@ -1,5 +1,5 @@
 var morgan = require("morgan");
-var express = require("express");
+var bodyParser = require("body-parser");
 var cors = require("cors");
 
 // setup global middleware here
@@ -8,5 +8,6 @@ module.exports = function (app) {
   // Application Middlewares
   app.use(morgan("dev"));
   app.use(cors());
-  app.use(express.urlencoded({ limit: "50mb", extended: true }));
+  app.use(bodyParser.json({ limit: "50mb" })); // for parsing application/json
+  app.use(bodyParser.urlencoded({ extended: true }));
 };

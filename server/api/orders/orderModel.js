@@ -3,8 +3,8 @@ const mongoose = require("mongoose");
 const OrderModel = mongoose.Schema(
   {
     orderNumber: {
-      type: String,
-      required: true,
+      type: Number,
+      default: 0,
     },
     designFormat: {
       type: String,
@@ -68,11 +68,6 @@ const OrderModel = mongoose.Schema(
   },
   { timestamps: true }
 );
-
-OrderModel.plugin(AutoIncrement, {
-  id: "order_seq",
-  inc_field: "orderNumber",
-});
 
 const Order = mongoose.model("order", OrderModel);
 
