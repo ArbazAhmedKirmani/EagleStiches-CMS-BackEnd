@@ -2,27 +2,81 @@ const mongoose = require("mongoose");
 
 const OrderModel = mongoose.Schema(
   {
+    orderId: {
+      type: mongoose.Schema.ObjectId,
+    },
     orderNumber: {
       type: Number,
       default: 0,
     },
-    designFormat: {
+    designName: {
+      type: String,
+      required: true,
+    },
+    formatId: {
+      type: mongoose.Schema.ObjectId,
+      ref: "formats",
+    },
+    dimensionHeight: {
+      type: Number,
+      default: 0,
+    },
+    dimensionWeight: {
+      type: Number,
+      default: 0,
+    },
+    unitId: {
+      type: mongoose.Schema.ObjectId,
+      ref: "units",
+    },
+    numberOfColor: {
+      type: Number,
+      default: 1,
+    },
+    fabric: {
+      type: String,
+      default: 1,
+    },
+    additionalInformation: {
+      type: String,
+      default: 1,
+    },
+    isRushOrder: {
+      type: Boolean,
+      default: false,
+    },
+    isBlending: {
+      type: Boolean,
+      default: false,
+    },
+    uploadFileUrls: {
+      type: Array,
+      default: [],
+    },
+    orderType: {
       type: String,
       trim: true,
       enum: {
-        values: ["Custom Patch", "Vector Art", "Digitizing"],
+        values: ["Custom Patch", "Digitizing", "Vector Art"],
         default: "Digitizing",
       },
       required: true,
     },
-    orderMode: {
+    numberOfPieces: {
+      type: Number,
+      default: 1,
+    },
+    shape: {
       type: String,
-      trim: true,
-      enum: {
-        values: ["Form", "email"],
-        default: "Form",
-      },
-      required: true,
+      default: "",
+    },
+    patchCategoryId: {
+      type: mongoose.Schema.ObjectId,
+      ref: "patchCategory",
+    },
+    placementId: {
+      type: mongoose.Schema.ObjectId,
+      ref: "placements",
     },
     orderStatus: {
       type: String,
@@ -37,6 +91,15 @@ const OrderModel = mongoose.Schema(
           "deactivated",
         ],
         default: "pending",
+      },
+      required: true,
+    },
+    orderMode: {
+      type: String,
+      trim: true,
+      enum: {
+        values: ["Form", "email"],
+        default: "Form",
       },
       required: true,
     },
