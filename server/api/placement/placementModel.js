@@ -2,10 +2,6 @@ const mongoose = require("mongoose");
 
 const PlacementModel = mongoose.Schema(
   {
-    placementId: {
-      type: mongoose.Schema.ObjectId,
-      required: true,
-    },
     placementName: {
       type: String,
       required: true,
@@ -16,4 +12,4 @@ const PlacementModel = mongoose.Schema(
 
 const Placement = mongoose.model("placements", PlacementModel);
 
-module.exports = Customer;
+module.exports = Placement;

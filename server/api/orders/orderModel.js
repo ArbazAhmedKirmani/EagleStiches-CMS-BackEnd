@@ -13,7 +13,7 @@ const OrderModel = mongoose.Schema(
       type: String,
       required: true,
     },
-    formatId: {
+    format: {
       type: mongoose.Schema.ObjectId,
       ref: "formats",
     },
@@ -25,7 +25,7 @@ const OrderModel = mongoose.Schema(
       type: Number,
       default: 0,
     },
-    unitId: {
+    unit: {
       type: mongoose.Schema.ObjectId,
       ref: "units",
     },
@@ -70,11 +70,11 @@ const OrderModel = mongoose.Schema(
       type: String,
       default: "",
     },
-    patchCategoryId: {
+    patchCategory: {
       type: mongoose.Schema.ObjectId,
       ref: "patchCategory",
     },
-    placementId: {
+    placement: {
       type: mongoose.Schema.ObjectId,
       ref: "placements",
     },

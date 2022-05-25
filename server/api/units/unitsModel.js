@@ -2,10 +2,6 @@ const mongoose = require("mongoose");
 
 const UnitModel = mongoose.Schema(
   {
-    unitId: {
-      type: mongoose.Schema.ObjectId,
-      required: true,
-    },
     unitName: {
       type: String,
       required: true,

@@ -2,10 +2,6 @@ const mongoose = require("mongoose");
 
 const PatchCategoryModel = mongoose.Schema(
   {
-    patchCategoryId: {
-      type: mongoose.Schema.ObjectId,
-      required: true,
-    },
     patchCategoryName: {
       type: String,
       required: true,
@@ -16,4 +12,4 @@ const PatchCategoryModel = mongoose.Schema(
 
 const PatchCategory = mongoose.model("patchCategory", PatchCategoryModel);
 
-module.exports = Customer;
+module.exports = PatchCategory;
