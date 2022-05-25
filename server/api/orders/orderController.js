@@ -1,5 +1,5 @@
 const Order = require("./orderModel");
-const axios = require("axios");
+const { decodeBase64Image } = require("../../config/commonFunctions");
 
 exports.createOrder = async (req, res) => {
   try {
@@ -8,29 +8,49 @@ exports.createOrder = async (req, res) => {
       orderMode,
       orderStatus,
       orderHistory,
+      uploadFileUrls,
+      link,
       createdBy,
       modifiedBy,
       isDeleted,
       deletedAt,
       deletedBy,
     } = req.body;
-    const order = new Order({
-      $inc: { orderNumber: 1 },
-      designFormat,
-      orderMode,
-      orderStatus,
-      orderHistory,
-      createdBy,
-      modifiedBy,
-      isDeleted,
-      deletedAt,
-      deletedBy,
-    });
-    await order.save();
-    res.status(200).send({
-      status: "Ok",
-      message: "record created successfully",
-    });
+
+    const photoUrls = [];
+
+    for (const photo of uploadFileUrls) {
+      await decodeBase64Image(
+        photo,
+        req,
+        res,
+        "",
+        async function (responceUrl) {
+          photoUrls.push(responceUrl);
+          if (photoUrls.length === uploadFileUrls.length) {
+            const order = new Order({
+              $inc: { orderNumber: 1 },
+              designFormat,
+              orderMode,
+              orderStatus,
+              orderHistory,
+              uploadFileUrls,
+              link,
+              createdBy,
+              modifiedBy,
+              isDeleted,
+              deletedAt,
+              deletedBy,
+            });
+            await order.save();
+            res.status(200).send({
+              status: "Ok",
+              message: "record created successfully",
+            });
+          }
+        }
+      );
+    }
   } catch (err) {
     console.log("Error :", err);
     res.status(400).send({ status: "Error", message: "check server logs" });

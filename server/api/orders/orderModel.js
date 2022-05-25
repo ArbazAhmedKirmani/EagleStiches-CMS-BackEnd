@@ -35,11 +35,9 @@ const OrderModel = mongoose.Schema(
     },
     fabric: {
       type: String,
-      default: 1,
     },
     additionalInformation: {
       type: String,
-      default: 1,
     },
     isRushOrder: {
       type: Boolean,
@@ -49,9 +47,9 @@ const OrderModel = mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    uploadFileUrls: {
-      type: Array,
-      default: [],
+    uploadFileUrls: [{ type: String, required: true }],
+    link: {
+      type: String,
     },
     orderType: {
       type: String,
