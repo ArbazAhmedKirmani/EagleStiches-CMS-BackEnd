@@ -90,14 +90,14 @@ exports.updatePlacementById = async (req, res) => {
 exports.deletePlacementById = async (req, res) => {
   try {
     const { id } = req.params;
-    const order = Order.findById({ placement: id });
+    const order = await Order.findOne({ placement: id });
     if (order) {
       res.status(400).send({ status: "Error", message: "record exist!" });
     } else {
       await Placement.findByIdAndDelete({ _id: id });
       res
         .status(200)
-        .send({ status: "Ok", message: "record updated successfully" });
+        .send({ status: "Ok", message: "record deleted successfully" });
     }
   } catch (err) {
     console.log("Error :", err);

@@ -90,14 +90,14 @@ exports.updateFormatById = async (req, res) => {
 exports.deleteFormatById = async (req, res) => {
   try {
     const { id } = req.params;
-    const order = Order.findById({ format: id });
+    const order = await Order.findOne({ format: id });
     if (order) {
       res.status(400).send({ status: "Error", message: "record exist!" });
     } else {
       await Format.findByIdAndDelete({ _id: id });
       res
         .status(200)
-        .send({ status: "Ok", message: "record updated successfully" });
+        .send({ status: "Ok", message: "record deleted successfully" });
     }
   } catch (err) {
     console.log("Error :", err);

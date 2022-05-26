@@ -90,14 +90,14 @@ exports.updateUnitById = async (req, res) => {
 exports.deleteUnitById = async (req, res) => {
   try {
     const { id } = req.params;
-    const order = await Order.findById({ unit: id });
+    const order = await Order.findOne({ unit: id });
     if (order) {
       res.status(400).send({ status: "Error", message: "record exist!" });
     } else {
       await Unit.findByIdAndDelete({ _id: id });
       res
         .status(200)
-        .send({ status: "Ok", message: "record updated successfully" });
+        .send({ status: "Ok", message: "record deleted successfully" });
     }
   } catch (err) {
     console.log("Error :", err);

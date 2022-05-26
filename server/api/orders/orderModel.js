@@ -2,9 +2,6 @@ const mongoose = require("mongoose");
 
 const OrderModel = mongoose.Schema(
   {
-    orderId: {
-      type: mongoose.Schema.ObjectId,
-    },
     orderNumber: {
       type: Number,
       default: 0,
