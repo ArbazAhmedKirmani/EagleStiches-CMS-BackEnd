@@ -22,6 +22,9 @@ const OrderModel = mongoose.Schema(
       type: Number,
       default: 0,
     },
+    poNumber: {
+      type: String,
+    },
     unit: {
       type: mongoose.Schema.ObjectId,
       ref: "units",
