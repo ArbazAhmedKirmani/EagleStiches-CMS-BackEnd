@@ -44,7 +44,7 @@ const OrderModel = mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    uploadFileUrls: [{ type: String, required: true }],
+    uploadFileUrls: { type: String, required: true },
     link: {
       type: String,
     },

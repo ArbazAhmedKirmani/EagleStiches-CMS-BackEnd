@@ -1,5 +1,7 @@
 const Order = require("./orderModel");
-const { decodeBase64Image } = require("../../config/commonFunctions");
+const path = require("path");
+const fs = require("fs");
+const JSZip = require("jszip");
 
 exports.createOrder = async (req, res) => {
   try {
@@ -8,7 +10,6 @@ exports.createOrder = async (req, res) => {
       orderMode,
       orderStatus,
       orderHistory,
-      uploadFileUrls,
       link,
       createdBy,
       modifiedBy,
@@ -16,40 +17,88 @@ exports.createOrder = async (req, res) => {
       deletedAt,
       deletedBy,
     } = req.body;
+    const zip = new JSZip();
+    const files = req.files.file;
 
-    const photoUrls = [];
+    if (files.length) {
+      let zipFilePath =
+        path.join(__dirname, "../../../", "public") + "/" + `orderFiles` + ".zip";
+      const fileUrl_dataFillZip =
+        req.protocol +
+        "://" +
+        req.get("host") +
+        zipFilePath.split(path.join(__dirname, "../../../", "public")).pop();
+      const storedFiles = [];
+      const saveFile = new Promise((resolve, reject) => {
+        files.map((file) => {
+          const randomName = crypto
+            .createHash("sha1")
+            .update(seed)
+            .digest("hex");
+          const expension = file.name.split(/[\s.]+/).pop();
+          const filePath = path.join(
+            __dirname,
+            "../../../",
+            "public",
+            `File_${randomName}.${expension}`
+          );
 
-    for (const photo of uploadFileUrls) {
-      await decodeBase64Image(
-        photo,
-        req,
-        res,
-        "",
-        async function (responceUrl) {
-          photoUrls.push(responceUrl);
-          if (photoUrls.length === uploadFileUrls.length) {
-            const order = new Order({
-              $inc: { orderNumber: 1 },
-              designFormat,
-              orderMode,
-              orderStatus,
-              orderHistory,
-              uploadFileUrls,
-              link,
-              createdBy,
-              modifiedBy,
-              isDeleted,
-              deletedAt,
-              deletedBy,
+          file.mv(filePath, function (err) {
+            if (err) reject("Error");
+            console.log("******************* File Saved *******************");
+          });
+
+          storedFiles.push({
+            path: filePath,
+            name: `File_${randomName}.${expension}`,
+          });
+        });
+        resolve("Resolved");
+      });
+      saveFile
+        .then((data) => {
+          console.log(data);
+          storedFiles.map((storedFile) => {
+            zip.file(storedFile.name, fs.readFileSync(storedFile.path));
+          });
+
+          zip
+            .generateNodeStream({
+              type: "nodebuffer",
+              streamFiles: true,
+            })
+            .pipe(fs.createWriteStream(zipFilePath))
+            .on("finish", function () {
+              // JSZip generates a readable stream with a "end" event,
+              // but is piped here in a writable stream which emits a "finish" event.
+
+              const order = new Order({
+                $inc: { orderNumber: 1 },
+                designFormat,
+                orderMode,
+                orderStatus,
+                orderHistory,
+                uploadFileUrl : fileUrl_dataFillZip,
+                link,
+                createdBy,
+                modifiedBy,
+                isDeleted,
+                deletedAt,
+                deletedBy,
+              });
+              await order.save();
+              res.status(200).send({
+                status: "Ok",
+                message: "record created successfully",
+              });
             });
-            await order.save();
-            res.status(200).send({
-              status: "Ok",
-              message: "record created successfully",
-            });
-          }
-        }
-      );
+        })
+        .catch((err) => {
+          console.log(
+            "*******************Error Check Server Logs*******************"
+          );
+          console.log(err);
+        });
     }
   } catch (err) {
     console.log("Error :", err);
