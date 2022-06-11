@@ -84,7 +84,7 @@ exports.createOrder = async (req, res) => {
               streamFiles: true,
             })
             .pipe(fs.createWriteStream(zipFilePath))
-            .on("finish", function () {
+            .on("finish", async function () {
               // JSZip generates a readable stream with a "end" event,
               // but is piped here in a writable stream which emits a "finish" event.
 

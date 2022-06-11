@@ -47,6 +47,10 @@ const OrderModel = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    colorSeperation: {
+      type: Boolean,
+      default: false,
+    },
     uploadFileUrls: { type: String, required: true },
     link: {
       type: String,
