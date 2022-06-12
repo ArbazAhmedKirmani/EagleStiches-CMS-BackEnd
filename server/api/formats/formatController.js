@@ -78,9 +78,26 @@ exports.updateFormatById = async (req, res) => {
     const { id } = req.params;
     const { formatName } = req.body;
     await Format.findOneAndUpdate({ _id: id }, { formatName });
-    res
-      .status(200)
-      .send({ status: "Ok", message: "record updated successfully" });
+
+    let findQuery = {};
+    let top = 10;
+    let skip = 0;
+    let populate = "";
+    let sort = "";
+
+    let totalCount = await Format.countDocuments({ ...findQuery });
+    const format = await Format.find({ ...findQuery })
+      .populate(populate)
+      .skip(skip)
+      .limit(top)
+      .sort(sort);
+
+    res.status(200).send({
+      status: "Ok",
+      message: "record updated successfully",
+      data: format,
+      count: totalCount,
+    });
   } catch (err) {
     console.log("Error :", err);
     res.status(400).send({ status: "Error", message: "check server logs" });
@@ -95,9 +112,25 @@ exports.deleteFormatById = async (req, res) => {
       res.status(400).send({ status: "Error", message: "record exist!" });
     } else {
       await Format.findByIdAndDelete({ _id: id });
-      res
-        .status(200)
-        .send({ status: "Ok", message: "record deleted successfully" });
+      let findQuery = {};
+      let top = 10;
+      let skip = 0;
+      let populate = "";
+      let sort = "";
+
+      let totalCount = await Format.countDocuments({ ...findQuery });
+      const format = await Format.find({ ...findQuery })
+        .populate(populate)
+        .skip(skip)
+        .limit(top)
+        .sort(sort);
+
+      res.status(200).send({
+        status: "Ok",
+        message: "record deleted successfully",
+        data: format,
+        count: totalCount,
+      });
     }
   } catch (err) {
     console.log("Error :", err);

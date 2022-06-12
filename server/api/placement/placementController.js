@@ -77,10 +77,28 @@ exports.updatePlacementById = async (req, res) => {
   try {
     const { id } = req.params;
     const { placementName } = req.body;
+
     await Placement.findOneAndUpdate({ _id: id }, { placementName });
-    res
-      .status(200)
-      .send({ status: "Ok", message: "record updated successfully" });
+
+    let findQuery = {};
+    let top = 10;
+    let skip = 0;
+    let populate = "";
+    let sort = "";
+
+    let totalCount = await Placement.countDocuments({ ...findQuery });
+    const placement = await Placement.find({ ...findQuery })
+      .populate(populate)
+      .skip(skip)
+      .limit(top)
+      .sort(sort);
+
+    res.status(200).send({
+      status: "Ok",
+      message: "record updated successfully!",
+      data: placement,
+      count: totalCount,
+    });
   } catch (err) {
     console.log("Error :", err);
     res.status(400).send({ status: "Error", message: "check server logs" });
@@ -95,9 +113,26 @@ exports.deletePlacementById = async (req, res) => {
       res.status(400).send({ status: "Error", message: "record exist!" });
     } else {
       await Placement.findByIdAndDelete({ _id: id });
-      res
-        .status(200)
-        .send({ status: "Ok", message: "record deleted successfully" });
+
+      let findQuery = {};
+      let top = 10;
+      let skip = 0;
+      let populate = "";
+      let sort = "";
+
+      let totalCount = await Placement.countDocuments({ ...findQuery });
+      const placement = await Placement.find({ ...findQuery })
+        .populate(populate)
+        .skip(skip)
+        .limit(top)
+        .sort(sort);
+
+      res.status(200).send({
+        status: "Ok",
+        message: "record deleted successfully!",
+        data: placement,
+        count: totalCount,
+      });
     }
   } catch (err) {
     console.log("Error :", err);

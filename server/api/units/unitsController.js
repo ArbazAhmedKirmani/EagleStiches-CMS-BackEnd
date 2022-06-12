@@ -78,9 +78,26 @@ exports.updateUnitById = async (req, res) => {
     const { id } = req.params;
     const { unitName } = req.body;
     await Unit.findOneAndUpdate({ _id: id }, { unitName });
-    res
-      .status(200)
-      .send({ status: "Ok", message: "record updated successfully" });
+
+    let findQuery = {};
+    let top = 10;
+    let skip = 0;
+    let populate = "";
+    let sort = "";
+
+    let totalCount = await Unit.countDocuments({ ...findQuery });
+    const units = await Unit.find({ ...findQuery })
+      .populate(populate)
+      .skip(skip)
+      .limit(top)
+      .sort(sort);
+
+    res.status(200).send({
+      status: "Ok",
+      message: "record updated successfully",
+      data: units,
+      count: totalCount,
+    });
   } catch (err) {
     console.log("Error :", err);
     res.status(400).send({ status: "Error", message: "check server logs" });
@@ -95,9 +112,26 @@ exports.deleteUnitById = async (req, res) => {
       res.status(400).send({ status: "Error", message: "record exist!" });
     } else {
       await Unit.findByIdAndDelete({ _id: id });
-      res
-        .status(200)
-        .send({ status: "Ok", message: "record deleted successfully" });
+
+      let findQuery = {};
+      let top = 10;
+      let skip = 0;
+      let populate = "";
+      let sort = "";
+
+      let totalCount = await Unit.countDocuments({ ...findQuery });
+      const units = await Unit.find({ ...findQuery })
+        .populate(populate)
+        .skip(skip)
+        .limit(top)
+        .sort(sort);
+
+      res.status(200).send({
+        status: "Ok",
+        message: "record deleted successfully",
+        data: units,
+        count: totalCount,
+      });
     }
   } catch (err) {
     console.log("Error :", err);

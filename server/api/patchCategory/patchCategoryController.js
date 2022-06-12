@@ -78,9 +78,26 @@ exports.updatePatchCategoryById = async (req, res) => {
     const { id } = req.params;
     const { patchCategoryName } = req.body;
     await PatchCategory.findOneAndUpdate({ _id: id }, { patchCategoryName });
-    res
-      .status(200)
-      .send({ status: "Ok", message: "record updated successfully" });
+
+    let findQuery = {};
+    let top = 10;
+    let skip = 0;
+    let populate = "";
+    let sort = "";
+
+    let totalCount = await PatchCategory.countDocuments({ ...findQuery });
+    const patchCategories = await PatchCategory.find({ ...findQuery })
+      .populate(populate)
+      .skip(skip)
+      .limit(top)
+      .sort(sort);
+
+    res.status(200).send({
+      status: "Ok",
+      message: "record updated successfully",
+      data: patchCategories,
+      count: totalCount,
+    });
   } catch (err) {
     console.log("Error :", err);
     res.status(400).send({ status: "Error", message: "check server logs" });
@@ -95,9 +112,27 @@ exports.deletePatchCategoryById = async (req, res) => {
       res.status(400).send({ status: "Error", message: "record exist!" });
     } else {
       await PatchCategory.findByIdAndDelete({ _id: id });
-      res
-        .status(200)
-        .send({ status: "Ok", message: "record deleted successfully" });
+
+      let findQuery = {};
+      let top = 10;
+      let skip = 0;
+      let populate = "";
+      let sort = "";
+
+      let totalCount = await PatchCategory.countDocuments({ ...findQuery });
+
+      const patchCategories = await PatchCategory.find({ ...findQuery })
+        .populate(populate)
+        .skip(skip)
+        .limit(top)
+        .sort(sort);
+
+      res.status(200).send({
+        status: "Ok",
+        message: "record deleted successfully",
+        data: patchCategories,
+        count: totalCount,
+      });
     }
   } catch (err) {
     console.log("Error :", err);

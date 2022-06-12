@@ -31,14 +31,16 @@ exports.createOrder = async (req, res) => {
       shape,
       patchCategory,
       placement,
-
     } = req.body;
     const zip = new JSZip();
     const files = req.files.file;
 
     if (files.length) {
       let zipFilePath =
-        path.join(__dirname, "../../../", "public") + "/" + `orderFiles` + ".zip";
+        path.join(__dirname, "../../../", "public") +
+        "/" +
+        `orderFiles` +
+        ".zip";
       const fileUrl_dataFillZip =
         req.protocol +
         "://" +
@@ -95,7 +97,7 @@ exports.createOrder = async (req, res) => {
                 orderStatus,
                 orderHistory,
                 poNumber,
-                uploadFileUrl : fileUrl_dataFillZip,
+                uploadFileUrl: fileUrl_dataFillZip,
                 link,
                 designName,
                 format,
@@ -201,9 +203,26 @@ exports.updateOrderById = async (req, res) => {
       { _id: id },
       { designFormat, orderMode, orderStatus, modifiedBy: userId }
     );
-    res
-      .status(200)
-      .send({ status: "Ok", message: "record updated successfully" });
+
+    let findQuery = { isDeleted: false };
+    let top = 10;
+    let skip = 0;
+    let populate = "";
+    let sort = "";
+
+    let totalCount = await Order.countDocuments({ ...findQuery });
+    const order = await Order.find({ ...findQuery })
+      .populate(populate)
+      .skip(skip)
+      .limit(top)
+      .sort(sort);
+
+    res.status(200).send({
+      status: "Ok",
+      message: "record updated successfully",
+      data: order,
+      count: totalCount,
+    });
   } catch (err) {
     console.log("Error :", err);
     res.status(400).send({ status: "Error", message: "check server logs" });
@@ -219,9 +238,26 @@ exports.deleteOrderById = async (req, res) => {
       { _id: id },
       { isDeleted: true, deletedAt: date, deletedBy: userId }
     );
-    res
-      .status(200)
-      .send({ status: "Ok", message: "record updated successfully" });
+
+    let findQuery = { isDeleted: false };
+    let top = 10;
+    let skip = 0;
+    let populate = "";
+    let sort = "";
+
+    let totalCount = await Order.countDocuments({ ...findQuery });
+    const order = await Order.find({ ...findQuery })
+      .populate(populate)
+      .skip(skip)
+      .limit(top)
+      .sort(sort);
+
+    res.status(200).send({
+      status: "Ok",
+      message: "record deleted successfully",
+      data: order,
+      count: totalCount,
+    });
   } catch (err) {
     console.log("Error :", err);
     res.status(400).send({ status: "Error", message: "check server logs" });
