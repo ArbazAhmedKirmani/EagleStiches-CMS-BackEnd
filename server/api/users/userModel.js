@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
 const UserSchema = new mongoose.Schema({
-  username: {
+  fullName: {
     type: String,
     required: true,
   },
@@ -33,6 +33,25 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  status: {
+    type: Boolean,
+    required: true,
+  },
+  modifiedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  isDeleted: {
+    type: Boolean,
+    required: true,
+  },
+  deletedAt: {
+    type: Date,
+  },
+  deletedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
   confirmed: {
     type: Boolean,
     default: false,
@@ -44,8 +63,8 @@ const UserSchema = new mongoose.Schema({
     type: String,
     trim: true,
     enum: {
-      values: ["Super Admin", "Admin", "User", "Agent"],
-      default: "User",
+      values: ["Super Admin", "Admin", "User", "SalesPerson", "Customer"],
+      default: "Customer",
     },
     required: true,
   },
