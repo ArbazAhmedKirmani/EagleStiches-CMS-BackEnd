@@ -64,7 +64,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
       trim: true,
       enum: {
-        values: ["Super Admin", "Admin", "User", "SalesPerson", "Customer"],
+        values: ["Super Admin", "Admin", "User", "Customer"],
         default: "Customer",
       },
       required: true,
