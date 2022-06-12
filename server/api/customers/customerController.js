@@ -122,7 +122,7 @@ exports.deleteCustomerById = async (req, res) => {
     );
     res
       .status(200)
-      .send({ status: "Ok", message: "record updated successfully" });
+      .send({ status: "Ok", message: "record deleted successfully" });
   } catch (err) {
     console.log("Error :", err);
     res.status(400).send({ status: "Error", message: "check server logs" });
