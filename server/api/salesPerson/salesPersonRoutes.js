@@ -5,13 +5,13 @@ const isAuthenticatedUser = require("../../auth/auth").isAuthenticatedUser;
 
 router
   .route("/:id")
-  .get(isAuthenticatedUser, controller.getPlacementById)
-  .put(isAuthenticatedUser, controller.updatePlacementById)
-  .delete(isAuthenticatedUser, controller.deletePlacementById);
+  .get(isAuthenticatedUser, controller.getSalesPersonById)
+  .put(isAuthenticatedUser, controller.updateSalesPersonById)
+  .delete(isAuthenticatedUser, controller.deleteSalesPersonById);
 
 router
   .route("/")
-  .post(isAuthenticatedUser, controller.createPlacement)
-  .get(isAuthenticatedUser, controller.getAllPlacements);
+  .post(isAuthenticatedUser, controller.createSalesPerson)
+  .get(isAuthenticatedUser, controller.getAllSalesPersons);
 
 module.exports = router;

@@ -7,5 +7,6 @@ router.use("/format", require("./formats/formatRoutes"));
 router.use("/patchcategory", require("./patchCategory/patchCategoryReoutes"));
 router.use("/placement", require("./placement/placementRoutes"));
 router.use("/unit", require("./units/unitsRoutes"));
+router.use("/salesPerson", require("./salesPerson/salesPersonRoutes"));
 
 module.exports = router;
