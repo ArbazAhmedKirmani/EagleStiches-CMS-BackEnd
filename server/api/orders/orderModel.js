@@ -51,7 +51,7 @@ const OrderModel = mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    uploadFileUrls: { type: String, required: true },
+    uploadFileUrls: { type: String },
     link: {
       type: String,
     },
@@ -121,7 +121,6 @@ const OrderModel = mongoose.Schema(
     },
     isDeleted: {
       type: Boolean,
-      required: true,
     },
     deletedAt: {
       type: Date,

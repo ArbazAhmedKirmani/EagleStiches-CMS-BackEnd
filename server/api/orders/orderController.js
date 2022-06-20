@@ -32,10 +32,12 @@ exports.createOrder = async (req, res) => {
       patchCategory,
       placement,
     } = req.body;
+
+    console.log(req.files);
     const zip = new JSZip();
     const files = req.files.file;
 
-    if (files.length) {
+    if (!req.files || Object.keys(req.files).length === 0) {
       let zipFilePath =
         path.join(__dirname, "../../../", "public") +
         "/" +
@@ -132,6 +134,41 @@ exports.createOrder = async (req, res) => {
           );
           console.log(err);
         });
+    } else {
+      const order = new Order({
+        $inc: { orderNumber: 1 },
+        designFormat,
+        orderMode,
+        orderStatus,
+        orderHistory,
+        poNumber,
+        uploadFileUrl: "",
+        link,
+        designName,
+        format,
+        dimensionHeight,
+        dimensionWeight,
+        numberOfColor,
+        fabric,
+        additionalInformation,
+        isRushOrder,
+        isBlending,
+        orderType,
+        numberOfPieces,
+        shape,
+        patchCategory,
+        placement,
+        createdBy,
+        modifiedBy,
+        isDeleted,
+        deletedAt,
+        deletedBy,
+      });
+      await order.save();
+      res.status(200).send({
+        status: "Ok",
+        message: "record created successfully",
+      });
     }
   } catch (err) {
     console.log("Error :", err);
