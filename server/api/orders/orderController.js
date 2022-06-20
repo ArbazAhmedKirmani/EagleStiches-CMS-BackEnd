@@ -37,10 +37,11 @@ exports.createOrder = async (req, res) => {
     const files = req.files.files;
 
     if (req.files || Object.keys(req.files).length !== 0) {
+      const orderFileName = (Math.random() + 1).toString(36).substring(7);
       let zipFilePath =
         path.join(__dirname, "../../../", "public") +
         "/" +
-        `orderFiles` +
+        `orderFiles_${orderFileName}` +
         ".zip";
       const fileUrl_dataFillZip =
         req.protocol +
@@ -62,18 +63,18 @@ exports.createOrder = async (req, res) => {
           file.mv(filePath, function (err) {
             if (err) reject("Error");
             console.log("******************* File Saved *******************");
-          });
-
-          storedFiles.push({
-            path: filePath,
-            name: `File_${randomName}.${expension}`,
+            storedFiles.push({
+              path: filePath,
+              name: `File_${randomName}.${expension}`,
+            });
+            if (storedFiles.length === files.length) {
+              resolve("Resolved");
+            }
           });
         });
-        resolve("Resolved");
       });
       saveFile
         .then((data) => {
-          console.log(data, "show data");
           storedFiles.map((storedFile) => {
             zip.file(storedFile.name, fs.readFileSync(storedFile.path));
           });
