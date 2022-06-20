@@ -88,40 +88,50 @@ exports.createOrder = async (req, res) => {
             .on("finish", async function () {
               // JSZip generates a readable stream with a "end" event,
               // but is piped here in a writable stream which emits a "finish" event.
-              const order = new Order({
-                $inc: { orderNumber: 1 },
-                designFormat,
-                orderMode,
-                orderStatus,
-                orderHistory,
-                poNumber,
-                uploadFileUrl: fileUrl_dataFillZip,
-                link,
-                designName,
-                format,
-                dimensionHeight,
-                dimensionWeight,
-                numberOfColor,
-                fabric,
-                additionalInformation,
-                isRushOrder,
-                isBlending,
-                orderType,
-                numberOfPieces,
-                shape,
-                patchCategory,
-                placement,
-                createdBy,
-                modifiedBy,
-                isDeleted,
-                deletedAt,
-                deletedBy,
-              });
-              await order.save();
-              res.status(200).send({
-                status: "Ok",
-                message: "record created successfully",
-              });
+              try {
+                const order = new Order({
+                  $inc: { orderNumber: 1 },
+                  designFormat,
+                  orderMode,
+                  orderStatus,
+                  orderHistory,
+                  poNumber,
+                  uploadFileUrl: fileUrl_dataFillZip,
+                  link,
+                  designName,
+                  format,
+                  dimensionHeight,
+                  dimensionWeight,
+                  numberOfColor,
+                  fabric,
+                  additionalInformation,
+                  isRushOrder,
+                  isBlending,
+                  orderType,
+                  numberOfPieces,
+                  shape,
+                  patchCategory,
+                  placement,
+                  createdBy,
+                  modifiedBy,
+                  isDeleted,
+                  deletedAt,
+                  deletedBy,
+                });
+                await order.save();
+                res.status(200).send({
+                  status: "Ok",
+                  message: "record created successfully",
+                });
+              } catch (err) {
+                console.log(
+                  "*******************Error Check Server Logs*******************"
+                );
+                console.log(err);
+                res
+                  .status(400)
+                  .send({ status: "Error", message: "Invalid Form Fields" });
+              }
             });
         })
         .catch((err) => {
@@ -129,6 +139,9 @@ exports.createOrder = async (req, res) => {
             "*******************Error Check Server Logs*******************"
           );
           console.log(err);
+          res
+            .status(400)
+            .send({ status: "Error", message: "Error Check Server Logs!" });
         });
     } else {
       const order = new Order({
