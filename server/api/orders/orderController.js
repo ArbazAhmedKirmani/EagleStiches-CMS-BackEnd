@@ -33,11 +33,11 @@ exports.createOrder = async (req, res) => {
       placement,
     } = req.body;
 
-    console.log(req.files);
     const zip = new JSZip();
-    const files = req.files.file;
+    const files = req.files.files;
+    console.log(files);
 
-    if (!req.files || Object.keys(req.files).length === 0) {
+    if (req.files || Object.keys(req.files).length !== 0) {
       let zipFilePath =
         path.join(__dirname, "../../../", "public") +
         "/" +
@@ -51,10 +51,7 @@ exports.createOrder = async (req, res) => {
       const storedFiles = [];
       const saveFile = new Promise((resolve, reject) => {
         files.map((file) => {
-          const randomName = crypto
-            .createHash("sha1")
-            .update(seed)
-            .digest("hex");
+          const randomName = (Math.random() + 1).toString(36).substring(7);
           const expension = file.name.split(/[\s.]+/).pop();
           const filePath = path.join(
             __dirname,
@@ -77,7 +74,7 @@ exports.createOrder = async (req, res) => {
       });
       saveFile
         .then((data) => {
-          console.log(data);
+          console.log(data, "show data");
           storedFiles.map((storedFile) => {
             zip.file(storedFile.name, fs.readFileSync(storedFile.path));
           });
@@ -91,7 +88,6 @@ exports.createOrder = async (req, res) => {
             .on("finish", async function () {
               // JSZip generates a readable stream with a "end" event,
               // but is piped here in a writable stream which emits a "finish" event.
-
               const order = new Order({
                 $inc: { orderNumber: 1 },
                 designFormat,
