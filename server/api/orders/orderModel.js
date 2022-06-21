@@ -65,7 +65,7 @@ const OrderModel = mongoose.Schema(
       required: true,
     },
     numberOfPieces: {
-      type: Number,
+      type: String,
       default: 1,
     },
     shape: {

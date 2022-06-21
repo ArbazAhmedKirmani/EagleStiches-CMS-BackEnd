@@ -36,7 +36,6 @@ exports.createOrder = async (req, res) => {
     console.log(req.files);
     const zip = new JSZip();
     const files = req.files.file;
-
     if (!req.files || Object.keys(req.files).length === 0) {
       let zipFilePath =
         path.join(__dirname, "../../../", "public") +
