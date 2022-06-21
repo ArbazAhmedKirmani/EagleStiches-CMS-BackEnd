@@ -33,14 +33,15 @@ exports.createOrder = async (req, res) => {
       placement,
     } = req.body;
 
-    console.log(req.files);
     const zip = new JSZip();
-    const files = req.files.file;
-    if (!req.files || Object.keys(req.files).length === 0) {
+    const files = req.files.files;
+
+    if (req.files || Object.keys(req.files).length !== 0) {
+      const orderFileName = (Math.random() + 1).toString(36).substring(7);
       let zipFilePath =
         path.join(__dirname, "../../../", "public") +
         "/" +
-        `orderFiles` +
+        `orderFiles_${orderFileName}` +
         ".zip";
       const fileUrl_dataFillZip =
         req.protocol +
@@ -50,10 +51,7 @@ exports.createOrder = async (req, res) => {
       const storedFiles = [];
       const saveFile = new Promise((resolve, reject) => {
         files.map((file) => {
-          const randomName = crypto
-            .createHash("sha1")
-            .update(seed)
-            .digest("hex");
+          const randomName = (Math.random() + 1).toString(36).substring(7);
           const expension = file.name.split(/[\s.]+/).pop();
           const filePath = path.join(
             __dirname,
@@ -65,18 +63,18 @@ exports.createOrder = async (req, res) => {
           file.mv(filePath, function (err) {
             if (err) reject("Error");
             console.log("******************* File Saved *******************");
-          });
-
-          storedFiles.push({
-            path: filePath,
-            name: `File_${randomName}.${expension}`,
+            storedFiles.push({
+              path: filePath,
+              name: `File_${randomName}.${expension}`,
+            });
+            if (storedFiles.length === files.length) {
+              resolve("Resolved");
+            }
           });
         });
-        resolve("Resolved");
       });
       saveFile
         .then((data) => {
-          console.log(data);
           storedFiles.map((storedFile) => {
             zip.file(storedFile.name, fs.readFileSync(storedFile.path));
           });
@@ -90,41 +88,50 @@ exports.createOrder = async (req, res) => {
             .on("finish", async function () {
               // JSZip generates a readable stream with a "end" event,
               // but is piped here in a writable stream which emits a "finish" event.
-
-              const order = new Order({
-                $inc: { orderNumber: 1 },
-                designFormat,
-                orderMode,
-                orderStatus,
-                orderHistory,
-                poNumber,
-                uploadFileUrl: fileUrl_dataFillZip,
-                link,
-                designName,
-                format,
-                dimensionHeight,
-                dimensionWeight,
-                numberOfColor,
-                fabric,
-                additionalInformation,
-                isRushOrder,
-                isBlending,
-                orderType,
-                numberOfPieces,
-                shape,
-                patchCategory,
-                placement,
-                createdBy,
-                modifiedBy,
-                isDeleted,
-                deletedAt,
-                deletedBy,
-              });
-              await order.save();
-              res.status(200).send({
-                status: "Ok",
-                message: "record created successfully",
-              });
+              try {
+                const order = new Order({
+                  $inc: { orderNumber: 1 },
+                  designFormat,
+                  orderMode,
+                  orderStatus,
+                  orderHistory,
+                  poNumber,
+                  uploadFileUrl: fileUrl_dataFillZip,
+                  link,
+                  designName,
+                  format,
+                  dimensionHeight,
+                  dimensionWeight,
+                  numberOfColor,
+                  fabric,
+                  additionalInformation,
+                  isRushOrder,
+                  isBlending,
+                  orderType,
+                  numberOfPieces,
+                  shape,
+                  patchCategory,
+                  placement,
+                  createdBy,
+                  modifiedBy,
+                  isDeleted,
+                  deletedAt,
+                  deletedBy,
+                });
+                await order.save();
+                res.status(200).send({
+                  status: "Ok",
+                  message: "record created successfully",
+                });
+              } catch (err) {
+                console.log(
+                  "*******************Error Check Server Logs*******************"
+                );
+                console.log(err);
+                res
+                  .status(400)
+                  .send({ status: "Error", message: "Invalid Form Fields" });
+              }
             });
         })
         .catch((err) => {
@@ -132,6 +139,9 @@ exports.createOrder = async (req, res) => {
             "*******************Error Check Server Logs*******************"
           );
           console.log(err);
+          res
+            .status(400)
+            .send({ status: "Error", message: "Error Check Server Logs!" });
         });
     } else {
       const order = new Order({
