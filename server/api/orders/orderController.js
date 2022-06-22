@@ -33,10 +33,12 @@ exports.createOrder = async (req, res) => {
       placement,
     } = req.body;
 
+    const userId = req.user._id;
+
     const zip = new JSZip();
     const files = req.files.files;
 
-    if (req.files || Object.keys(req.files).length !== 0) {
+    if (files.length > 0) {
       const orderFileName = (Math.random() + 1).toString(36).substring(7);
       let zipFilePath =
         path.join(__dirname, "../../../", "public") +
@@ -112,7 +114,7 @@ exports.createOrder = async (req, res) => {
                   shape,
                   patchCategory,
                   placement,
-                  createdBy,
+                  createdBy : userId,
                   modifiedBy,
                   isDeleted: false,
                   deletedAt,
@@ -167,7 +169,7 @@ exports.createOrder = async (req, res) => {
         shape,
         patchCategory,
         placement,
-        createdBy,
+        createdBy : userId,
         modifiedBy,
         isDeleted: false,
         deletedAt,
