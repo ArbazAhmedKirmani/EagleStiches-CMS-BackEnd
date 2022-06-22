@@ -114,7 +114,7 @@ exports.createOrder = async (req, res) => {
                   placement,
                   createdBy,
                   modifiedBy,
-                  isDeleted,
+                  isDeleted: false,
                   deletedAt,
                   deletedBy,
                 });
@@ -169,7 +169,7 @@ exports.createOrder = async (req, res) => {
         placement,
         createdBy,
         modifiedBy,
-        isDeleted,
+        isDeleted: false,
         deletedAt,
         deletedBy,
       });
