@@ -234,7 +234,17 @@ exports.getAllOrders = async (req, res) => {
 exports.getOrderById = async (req, res) => {
   try {
     const { id } = req.params;
-    const Order = await Order.findById({ _id: id });
+
+    let findQuery = { isDeleted: false };
+    let populate = "";
+    
+    if (req.query.populate) {
+      populate = req.query.populate;
+    }
+    
+    const Order = await Order.findById({ _id: id }) 
+    .populate(populate);
+
     res.status(200).send({ status: "Ok", data: Order });
   } catch (err) {
     console.log("Error :", err);

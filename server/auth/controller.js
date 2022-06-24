@@ -15,16 +15,18 @@ exports.signin = async (req, res) => {
 
 exports.signup = async (req, res) => {
   try {
-    const { username, email, password, phone, country, city, role } = req.body;
+    const { fullName, email, password, phone, country, city, role } = req.body;
 
     const userData = {
-      username,
+      fullName,
       email,
       password,
       phone,
       country,
       city,
       role,
+      isDeleted: false,
+      status: true,
     };
     const newUser = new User(userData);
     newUser.save(async function (err, user) {
