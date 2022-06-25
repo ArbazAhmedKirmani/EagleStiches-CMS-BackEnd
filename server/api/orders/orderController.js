@@ -114,7 +114,7 @@ exports.createOrder = async (req, res) => {
                   shape,
                   patchCategory,
                   placement,
-                  createdBy : userId,
+                  createdBy: userId,
                   modifiedBy,
                   isDeleted: false,
                   deletedAt,
@@ -169,7 +169,7 @@ exports.createOrder = async (req, res) => {
         shape,
         patchCategory,
         placement,
-        createdBy : userId,
+        createdBy: userId,
         modifiedBy,
         isDeleted: false,
         deletedAt,
@@ -237,13 +237,12 @@ exports.getOrderById = async (req, res) => {
 
     let findQuery = { isDeleted: false };
     let populate = "";
-    
+
     if (req.query.populate) {
       populate = req.query.populate;
     }
-    
-    const Order = await Order.findById({ _id: id }) 
-    .populate(populate);
+
+    const Order = await Order.findById({ _id: id }).populate(populate);
 
     res.status(200).send({ status: "Ok", data: Order });
   } catch (err) {
@@ -255,11 +254,11 @@ exports.getOrderById = async (req, res) => {
 exports.updateOrderById = async (req, res) => {
   try {
     const { id } = req.params;
-    const { designFormat, orderMode, orderStatus } = req.body;
+    const { designFormat, orderMode, orderStatus, isDeleted } = req.body;
     const userId = req.user._id;
     await Order.findOneAndUpdate(
       { _id: id },
-      { designFormat, orderMode, orderStatus, modifiedBy: userId }
+      { designFormat, orderMode, orderStatus, modifiedBy: userId, isDeleted }
     );
 
     let findQuery = { isDeleted: false };
