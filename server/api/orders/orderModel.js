@@ -72,6 +72,14 @@ const OrderModel = mongoose.Schema(
       type: String,
       default: "",
     },
+    price: {
+      type: Number,
+      default: null,
+    },
+    pieces: {
+      type: mongoose.Schema.ObjectId,
+      ref: "pieces",
+    },
     patchCategory: {
       type: mongoose.Schema.ObjectId,
       ref: "patchCategory",
