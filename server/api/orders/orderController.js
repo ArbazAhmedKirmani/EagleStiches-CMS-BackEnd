@@ -286,6 +286,41 @@ exports.updateOrderById = async (req, res) => {
   }
 };
 
+exports.updateOrderPriceById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { price } = req.body;
+    // const userId = req.user._id;
+    await Order.findOneAndUpdate(
+      { _id: id },
+      { price }
+    );
+
+    let findQuery = { isDeleted: false };
+    let top = 10;
+    let skip = 0;
+    let populate = "";
+    let sort = "";
+
+    let totalCount = await Order.countDocuments({ ...findQuery });
+    const order = await Order.find({ ...findQuery })
+      .populate(populate)
+      .skip(skip)
+      .limit(top)
+      .sort(sort);
+
+    res.status(200).send({
+      status: "Ok",
+      message: "record updated successfully",
+      data: order,
+      count: totalCount,
+    });
+  } catch (err) {
+    console.log("Error :", err);
+    res.status(400).send({ status: "Error", message: "check server logs" });
+  }
+};
+
 exports.deleteOrderById = async (req, res) => {
   try {
     const { id } = req.params;
