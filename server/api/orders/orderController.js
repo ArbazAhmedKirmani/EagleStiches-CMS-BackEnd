@@ -268,9 +268,9 @@ exports.updateOrderById = async (req, res) => {
     // console.log(id);
     if (salesPersonId === undefined) {
       const salePer = await SalesPerson.find({ isDeleted: false });
-      res.status(400).send({
+      res.status(200).send({
         status: "ErrorSalesPerson",
-        message: "Please define Sales Person to CUstomer and try again",
+        message: "Please define Sales Person to Customer and try again",
         data: salePer,
       });
       return;
