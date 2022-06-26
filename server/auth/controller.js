@@ -1,5 +1,6 @@
 const User = require("../api/users/userModel");
 const signToken = require("./auth").signToken;
+const nodemailer = require("nodemailer");
 
 exports.signin = async (req, res) => {
   const token = signToken(req.user._id, req.user.role);

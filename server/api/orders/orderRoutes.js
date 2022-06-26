@@ -8,9 +8,6 @@ router
   .get(isAuthenticatedUser, controller.getOrderById)
   .put(isAuthenticatedUser, controller.updateOrderById)
   .delete(isAuthenticatedUser, controller.deleteOrderById);
-  router
-    .route("/updateprice/:id")
-    .put(isAuthenticatedUser, controller.updateOrderPriceById)
 
 router
   .route("/")

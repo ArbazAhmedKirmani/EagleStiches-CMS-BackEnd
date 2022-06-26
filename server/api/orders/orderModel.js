@@ -104,6 +104,11 @@ const OrderModel = mongoose.Schema(
       },
       required: true,
     },
+    salesPerson: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "salesPersons",
+      default: null,
+    },
     orderMode: {
       type: String,
       trim: true,

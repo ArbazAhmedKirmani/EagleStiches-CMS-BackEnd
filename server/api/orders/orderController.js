@@ -1,7 +1,10 @@
 const Order = require("./orderModel");
+const SalesPerson = require("../salesPerson/salePersonModel");
 const path = require("path");
 const fs = require("fs");
 const JSZip = require("jszip");
+const mailerConfig = require("../../utils/serviceVariables");
+const nodemailer = require("nodemailer");
 
 exports.createOrder = async (req, res) => {
   try {
@@ -34,6 +37,7 @@ exports.createOrder = async (req, res) => {
     } = req.body;
 
     const userId = req.user._id;
+    const userRole = req.user.role;
 
     const zip = new JSZip();
     const files = req.files.files;
@@ -199,6 +203,10 @@ exports.getAllOrders = async (req, res) => {
       let regex = new RegExp(req.query.name);
       findQuery.name = { $regex: regex };
     }
+    if (req.query.userId) {
+      let regex = new RegExp(req.query.name);
+      findQuery.createdBy = req.query.userId;
+    }
     if (req.query.populate) {
       populate = req.query.populate;
     }
@@ -254,11 +262,25 @@ exports.getOrderById = async (req, res) => {
 exports.updateOrderById = async (req, res) => {
   try {
     const { id } = req.params;
-    const { designFormat, orderMode, orderStatus, isDeleted } = req.body;
+    const { designFormat, orderMode, orderStatus, price, salesPersonId } =
+      req.body;
     const userId = req.user._id;
+
+    const foundOrder = await Order.findById({ _id: id }).populate("createdBy");
+    const salesPerson = await SalesPerson.findById({ _id: salesPersonId });
+
+    console.log(salesPersonId, price);
+
     await Order.findOneAndUpdate(
       { _id: id },
-      { designFormat, orderMode, orderStatus, modifiedBy: userId, isDeleted }
+      {
+        designFormat,
+        orderMode,
+        orderStatus,
+        price,
+        salesPerson: salesPersonId,
+        modifiedBy: userId,
+      }
     );
 
     let findQuery = { isDeleted: false };
@@ -274,40 +296,25 @@ exports.updateOrderById = async (req, res) => {
       .limit(top)
       .sort(sort);
 
-    res.status(200).send({
-      status: "Ok",
-      message: "record updated successfully",
-      data: order,
-      count: totalCount,
-    });
-  } catch (err) {
-    console.log("Error :", err);
-    res.status(400).send({ status: "Error", message: "check server logs" });
-  }
-};
+    // Send confirmation Email
 
-exports.updateOrderPriceById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { price } = req.body;
-    // const userId = req.user._id;
-    await Order.findOneAndUpdate(
-      { _id: id },
-      { price }
-    );
+    // create reusable transporter object using the default SMTP transport
+    // let transporter = nodemailer.createTransport({
+    //   service: "gmail",
+    //   auth: {
+    //     user: mailerConfig.email, // generated ethereal user
+    //     pass: mailerConfig.password, // generated ethereal password
+    //   },
+    // });
 
-    let findQuery = { isDeleted: false };
-    let top = 10;
-    let skip = 0;
-    let populate = "";
-    let sort = "";
-
-    let totalCount = await Order.countDocuments({ ...findQuery });
-    const order = await Order.find({ ...findQuery })
-      .populate(populate)
-      .skip(skip)
-      .limit(top)
-      .sort(sort);
+    // // send mail with defined transport object
+    // let info = await transporter.sendMail({
+    //   from: "Eagle Stiches", // sender address
+    //   to: foundOrder.createdBy.email, // list of receivers
+    //   subject: `Order # ${foundOrder._id}`, // Subject line
+    //   text: `Your Order Details for the Design # ${foundOrder.designName}`, // plain text body
+    //   html: `<b>Price</b> # ${price} <br> <b>Sales Person</b> # ${salesPerson.salesPersonName}`, // html body
+    // });
 
     res.status(200).send({
       status: "Ok",
@@ -328,7 +335,12 @@ exports.deleteOrderById = async (req, res) => {
     const userId = req.user._id;
     await Order.findOneAndUpdate(
       { _id: id },
-      { isDeleted: true, deletedAt: date, deletedBy: userId }
+      {
+        isDeleted: true,
+        deletedAt: date,
+        deletedBy: userId,
+        status: "deactivated",
+      }
     );
 
     let findQuery = { isDeleted: false };
