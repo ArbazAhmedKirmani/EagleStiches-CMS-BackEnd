@@ -2,7 +2,8 @@ const User = require("./userModel");
 
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({});
+    let findQuery = { isDeleted: false, role: { $nin: ["Customer"] } };
+    const users = await User.find({ ...findQuery });
     res.status(200).send({ status: "Ok", data: users });
   } catch (err) {
     res.status(400).send({ status: "Error", message: "Check Server Logs" });
@@ -21,10 +22,11 @@ exports.updateUserByID = async (req, res) => {
       city,
       status,
       modifiedBy,
+      salesPerson
     };
     await User.findOneAndUpdate(user_id, userData);
 
-    let findQuery = { isDeleted: false };
+    let findQuery = { isDeleted: false, role: { $nin: ["Customer"] } };
     let top = 10;
     let skip = 0;
     let populate = "";

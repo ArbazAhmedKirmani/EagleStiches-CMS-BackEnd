@@ -1,6 +1,6 @@
 const mailerConfig = {
-  email: "orders.eagle.stiches@gmail.com",
-  password: "order.stiches",
+  email: "code.stack.2000@gmail.com",
+  password: "2000@code",
 };
 
 module.exports = mailerConfig;

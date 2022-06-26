@@ -69,6 +69,10 @@ const UserSchema = new mongoose.Schema(
       },
       required: true,
     },
+    salesPerson: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "salesPersons",
+    },
   },
   { timestamps: true }
 );

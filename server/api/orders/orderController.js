@@ -265,14 +265,24 @@ exports.updateOrderById = async (req, res) => {
     const { designFormat, orderMode, orderStatus, price, salesPersonId } =
       req.body;
     const userId = req.user._id;
+    // console.log(id);
+    if (salesPersonId === undefined) {
+      const salePer = await SalesPerson.find({ isDeleted: false });
+      res.status(400).send({
+        status: "ErrorSalesPerson",
+        message: "Please define Sales Person to CUstomer and try again",
+        data: salePer,
+      });
+      return;
+    }
 
-    const foundOrder = await Order.findById({ _id: id }).populate("createdBy");
+    const foundOrder = await Order.findById({ _id: req.body._id }).populate(
+      "createdBy"
+    );
     const salesPerson = await SalesPerson.findById({ _id: salesPersonId });
 
-    console.log(salesPersonId, price);
-
     await Order.findOneAndUpdate(
-      { _id: id },
+      { _id: req.user._id },
       {
         designFormat,
         orderMode,
@@ -299,22 +309,22 @@ exports.updateOrderById = async (req, res) => {
     // Send confirmation Email
 
     // create reusable transporter object using the default SMTP transport
-    // let transporter = nodemailer.createTransport({
-    //   service: "gmail",
-    //   auth: {
-    //     user: mailerConfig.email, // generated ethereal user
-    //     pass: mailerConfig.password, // generated ethereal password
-    //   },
-    // });
+    let transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: mailerConfig.email, // generated ethereal user
+        pass: mailerConfig.password, // generated ethereal password
+      },
+    });
 
     // // send mail with defined transport object
-    // let info = await transporter.sendMail({
-    //   from: "Eagle Stiches", // sender address
-    //   to: foundOrder.createdBy.email, // list of receivers
-    //   subject: `Order # ${foundOrder._id}`, // Subject line
-    //   text: `Your Order Details for the Design # ${foundOrder.designName}`, // plain text body
-    //   html: `<b>Price</b> # ${price} <br> <b>Sales Person</b> # ${salesPerson.salesPersonName}`, // html body
-    // });
+    let info = await transporter.sendMail({
+      from: "Eagle Stiches", // sender address
+      to: foundOrder.createdBy.email, // list of receivers
+      subject: `Order # ${foundOrder._id}`, // Subject line
+      text: `Your Order Details for the Design # ${foundOrder.designName}`, // plain text body
+      html: `<b>Price</b> # ${price} <br> <b>Sales Person</b> # ${salesPerson.salesPersonName}`, // html body
+    });
 
     res.status(200).send({
       status: "Ok",
