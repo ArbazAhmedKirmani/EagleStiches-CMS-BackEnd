@@ -40,9 +40,9 @@ exports.createOrder = async (req, res) => {
     const userRole = req.user.role;
 
     const zip = new JSZip();
-    const files = req.files.files;
+    const files = req?.files?.files;
 
-    if (files.length > 0) {
+    if (files?.length > 0) {
       const orderFileName = (Math.random() + 1).toString(36).substring(7);
       let zipFilePath =
         path.join(__dirname, "../../../", "public") +
