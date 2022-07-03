@@ -71,7 +71,7 @@ const UserSchema = new mongoose.Schema(
     },
     salesPerson: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "salesPersons",
+      ref: "salespersons",
     },
   },
   { timestamps: true }

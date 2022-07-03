@@ -262,11 +262,10 @@ exports.getOrderById = async (req, res) => {
 exports.updateOrderById = async (req, res) => {
   try {
     const { id } = req.params;
-    const { designFormat, orderMode, orderStatus, price, salesPersonId } =
-      req.body;
+    const { designFormat, orderMode, orderStatus, price, createdBy } = req.body;
     const userId = req.user._id;
     // console.log(id);
-    if (salesPersonId === undefined) {
+    if (createdBy.salesPerson === undefined) {
       const salePer = await SalesPerson.find({ isDeleted: false });
       res.status(200).send({
         status: "ErrorSalesPerson",
@@ -279,19 +278,18 @@ exports.updateOrderById = async (req, res) => {
     const foundOrder = await Order.findById({ _id: req.body._id }).populate(
       "createdBy"
     );
-    const salesPerson = await SalesPerson.findById({ _id: salesPersonId });
+    const salesPerson = await SalesPerson.findById({
+      _id: createdBy.salesPerson,
+    });
 
-    await Order.findOneAndUpdate(
-      { _id: req.user._id },
-      {
-        designFormat,
-        orderMode,
-        orderStatus,
-        price,
-        salesPerson: salesPersonId,
-        modifiedBy: userId,
-      }
-    );
+    await Order.findOneAndUpdate(req.user._id, {
+      designFormat,
+      orderMode,
+      orderStatus,
+      price,
+      salesPerson: createdBy.salesPerson,
+      modifiedBy: userId,
+    });
 
     let findQuery = { isDeleted: false };
     let top = 10;

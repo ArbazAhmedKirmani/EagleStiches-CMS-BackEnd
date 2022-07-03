@@ -20,14 +20,16 @@ exports.updateUserByID = async (req, res) => {
     const user_id = req.params.id;
     const modifiedBy = req.user._id;
     const userData = {
-      fullName,
-      phone,
-      country,
-      city,
-      status,
-      modifiedBy,
-      salesPerson,
+      fullName: req.body.fullName,
+      phone: req.body.phone,
+      country: req.body.country,
+      city: req.body.city,
+      status: req.body.status,
+      modifiedBy: req.body.modifiedBy,
+      salesPerson: req.body.salesPerson,
+      confirmed: true,
     };
+    console.log(userData);
     await User.findOneAndUpdate(user_id, userData);
 
     let findQuery = { isDeleted: false, role: { $ne: "Customer" } };
@@ -108,8 +110,13 @@ exports.deleteUserByID = async (req, res) => {
 
 exports.getAllUserCustomers = async (req, res) => {
   try {
+    let populate;
     let findQuery = { isDeleted: false, role: "Customer" };
-    const users = await User.find({ ...findQuery });
+    if (req.query.populate) {
+      populate = req.query.populate;
+    }
+    const users = await User.find({ ...findQuery })
+    // .populate(populate);
     res.status(200).send({ status: "Ok", data: users });
   } catch (err) {
     res.status(400).send({ status: "Error", message: "Check Server Logs" });
@@ -122,15 +129,16 @@ exports.updateUserByIDCustomers = async (req, res) => {
     const user_id = req.params.id;
     const modifiedBy = req.user._id;
     const userData = {
-      fullName,
-      phone,
-      country,
-      city,
-      status,
-      modifiedBy,
-      salesPerson,
+      fullName: req.body.fullName,
+      phone: req.body.phone,
+      country: req.body.country,
+      city: req.body.city,
+      status: req.body.status,
+      modifiedBy: req.body.modifiedBy,
+      salesPerson: req.body.salesPerson,
     };
-    await User.findOneAndUpdate(user_id, userData);
+    console.log(userData);
+    await User.findOneAndUpdate(user_id, userData, { isDeleted: false });
 
     let findQuery = { isDeleted: false, role: "Customer" };
     let top = 10;
