@@ -1,4 +1,5 @@
 const Order = require("./orderModel");
+const User = require("../users/userModel");
 const SalesPerson = require("../salesPerson/salePersonModel");
 const path = require("path");
 const fs = require("fs");
@@ -262,34 +263,25 @@ exports.getOrderById = async (req, res) => {
 exports.updateOrderById = async (req, res) => {
   try {
     const { id } = req.params;
-    const { designFormat, orderMode, orderStatus, price, createdBy } = req.body;
+    const { designFormat, orderMode, price, salesPersonId } = req.body;
     const userId = req.user._id;
-    // console.log(id);
-    if (createdBy.salesPerson === undefined) {
-      const salePer = await SalesPerson.find({ isDeleted: false });
-      res.status(200).send({
-        status: "ErrorSalesPerson",
-        message: "Please define Sales Person to Customer and try again",
-        data: salePer,
-      });
-      return;
-    }
+    const salesPerson = await SalesPerson.findById({ _id: salesPersonId });
 
-    const foundOrder = await Order.findById({ _id: req.body._id }).populate(
-      "createdBy"
-    );
-    const salesPerson = await SalesPerson.findById({
-      _id: createdBy.salesPerson,
-    });
-
-    await Order.findOneAndUpdate(req.user._id, {
+    await Order.findOneAndUpdate(id, {
       designFormat,
       orderMode,
-      orderStatus,
+      orderStatus: "accepted",
       price,
-      salesPerson: createdBy.salesPerson,
+      salesPerson: salesPersonId,
       modifiedBy: userId,
     });
+
+    await User.findOneAndUpdate(
+      { _id: userId },
+      {
+        salesPerson: salesPersonId,
+      }
+    );
 
     let findQuery = { isDeleted: false };
     let top = 10;
@@ -307,22 +299,22 @@ exports.updateOrderById = async (req, res) => {
     // Send confirmation Email
 
     // create reusable transporter object using the default SMTP transport
-    let transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: mailerConfig.email, // generated ethereal user
-        pass: mailerConfig.password, // generated ethereal password
-      },
-    });
+    // let transporter = nodemailer.createTransport({
+    //   service: "gmail",
+    //   auth: {
+    //     user: mailerConfig.email, // generated ethereal user
+    //     pass: mailerConfig.password, // generated ethereal password
+    //   },
+    // });
 
-    // // send mail with defined transport object
-    let info = await transporter.sendMail({
-      from: "Eagle Stiches", // sender address
-      to: foundOrder.createdBy.email, // list of receivers
-      subject: `Order # ${foundOrder._id}`, // Subject line
-      text: `Your Order Details for the Design # ${foundOrder.designName}`, // plain text body
-      html: `<b>Price</b> # ${price} <br> <b>Sales Person</b> # ${salesPerson.salesPersonName}`, // html body
-    });
+    // send mail with defined transport object
+    // let info = await transporter.sendMail({
+    //   from: "Eagle Stiches", // sender address
+    //   to: foundOrder.createdBy.email, // list of receivers
+    //   subject: `Order # ${foundOrder._id}`, // Subject line
+    //   text: `Your Order Details for the Design # ${foundOrder.designName}`, // plain text body
+    //   html: `<b>Price</b> # ${price} <br> <b>Sales Person</b> # ${salesPerson.salesPersonName}`, // html body
+    // });
 
     res.status(200).send({
       status: "Ok",
