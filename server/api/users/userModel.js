@@ -22,9 +22,11 @@ const UserSchema = new mongoose.Schema(
       required: true,
       min: 11,
       max: 11,
+      default: false,
     },
     isVerified: {
       type: Boolean,
+      default: false,
     },
     country: {
       type: String,
@@ -37,6 +39,7 @@ const UserSchema = new mongoose.Schema(
     status: {
       type: Boolean,
       required: true,
+      default: true,
     },
     modifiedBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -45,6 +48,7 @@ const UserSchema = new mongoose.Schema(
     isDeleted: {
       type: Boolean,
       required: true,
+      default: false,
     },
     deletedAt: {
       type: Date,
@@ -72,6 +76,7 @@ const UserSchema = new mongoose.Schema(
     salesPerson: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "salespersons",
+      default: null,
     },
   },
   { timestamps: true }

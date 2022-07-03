@@ -2,7 +2,10 @@ const router = require("express").Router();
 const controller = require("./userController");
 const isAuthenticatedUser = require("../../auth/auth").isAuthenticatedUser;
 
-router.route("/").get(isAuthenticatedUser, controller.getAllUsers);
+router
+  .route("/")
+  .get(isAuthenticatedUser, controller.getAllUsers)
+  .post(isAuthenticatedUser, controller.createUser);
 router
   .route("/customers")
   .get(isAuthenticatedUser, controller.getAllUserCustomers);
