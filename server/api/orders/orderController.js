@@ -267,6 +267,8 @@ exports.updateOrderById = async (req, res) => {
     const userId = req.user._id;
     const salesPerson = await SalesPerson.findById({ _id: salesPersonId });
 
+    const foundOrder = await Order.findById({ _id: id }).populate("createdBy");
+
     await Order.findOneAndUpdate(id, {
       designFormat,
       orderMode,
@@ -299,22 +301,31 @@ exports.updateOrderById = async (req, res) => {
     // Send confirmation Email
 
     // create reusable transporter object using the default SMTP transport
-    // let transporter = nodemailer.createTransport({
-    //   service: "gmail",
-    //   auth: {
-    //     user: mailerConfig.email, // generated ethereal user
-    //     pass: mailerConfig.password, // generated ethereal password
-    //   },
-    // });
+    let transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: mailerConfig.email, // generated ethereal user
+        pass: mailerConfig.password, // generated ethereal password
+      },
+    });
 
     // send mail with defined transport object
-    // let info = await transporter.sendMail({
-    //   from: "Eagle Stiches", // sender address
-    //   to: foundOrder.createdBy.email, // list of receivers
-    //   subject: `Order # ${foundOrder._id}`, // Subject line
-    //   text: `Your Order Details for the Design # ${foundOrder.designName}`, // plain text body
-    //   html: `<b>Price</b> # ${price} <br> <b>Sales Person</b> # ${salesPerson.salesPersonName}`, // html body
-    // });
+    await transporter.sendMail({
+      from: "Eagle Stiches", // sender address
+      to: foundOrder.createdBy.email, // list of receivers
+      subject: `Order # ${foundOrder._id}`, // Subject line
+      html: ` <b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Price</b> # ${price} <br> <b>Sales Person</b> # ${salesPerson.salesPersonName}`, // html body
+    });
+
+    await transporter.sendMail({
+      from: "Eagle Stiches", // sender address
+      to: salesPerson.salesPersonEmail, // list of receivers
+      subject: `Order # ${foundOrder._id}`, // Subject line
+      text: `Your Order Details for the Design # ${foundOrder.designName}`, // plain text body
+      html: `<b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Order Files</b> # ${foundOrder.uploadFileUrl}`, // html body
+    });
 
     res.status(200).send({
       status: "Ok",
