@@ -97,6 +97,8 @@ const OrderModel = mongoose.Schema(
           "accepted",
           "processing",
           "completed",
+          "delivered",
+          "paid",
           "rejected",
           "deactivated",
         ],

@@ -9,9 +9,13 @@ router
   .put(isAuthenticatedUser, controller.updateOrderById)
   .delete(isAuthenticatedUser, controller.deleteOrderById);
 
-router
-  .route("/")
-  .post(isAuthenticatedUser, controller.createOrder)
-  .get(isAuthenticatedUser, controller.getAllOrders);
+  router
+    .route("/")
+    .post(isAuthenticatedUser, controller.createOrder)
+    .get(isAuthenticatedUser, controller.getAllOrders);
+
+    router
+      .route("/status/:id")
+      .put(isAuthenticatedUser, controller.updateOrderStatusById)
 
 module.exports = router;

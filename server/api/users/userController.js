@@ -15,6 +15,50 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
+exports.createUser = async (req, res) => {
+  try {
+    const user_id = req.params.id;
+    const modifiedBy = req.user._id;
+    const userData = {
+      fullName: req.body.fullName,
+      phone: req.body.phone,
+      email: req.body.email,
+      country: req.body.country,
+      city: req.body.city,
+      status: req.body.status,
+      modifiedBy: req.body.modifiedBy,
+      salesPerson: req.body.salesPerson,
+      role: req.body.role,
+      confirmed: true,
+      password: '123456789'
+    };
+    await User.create(userData);
+
+    let findQuery = { isDeleted: false, role: { $ne: "Customer" } };
+    let top = 10;
+    let skip = 0;
+    let populate = "";
+    let sort = "";
+
+    let totalCount = await User.countDocuments({ ...findQuery });
+    const users = await User.find({ ...findQuery })
+      .populate(populate)
+      .skip(skip)
+      .limit(top)
+      .sort(sort);
+
+    res.status(200).send({
+      status: "Ok",
+      message: "record updated successfully!",
+      data: users,
+      count: totalCount,
+    });
+  } catch (err) {
+    console.log("Error :", err);
+    res.status(400).send({ status: "Error", message: "Check Server Logs" });
+  }
+};
+
 exports.updateUserByID = async (req, res) => {
   try {
     const user_id = req.params.id;
@@ -29,7 +73,6 @@ exports.updateUserByID = async (req, res) => {
       salesPerson: req.body.salesPerson,
       confirmed: true,
     };
-    console.log(userData);
     await User.findOneAndUpdate(user_id, userData);
 
     let findQuery = { isDeleted: false, role: { $ne: "Customer" } };
@@ -115,7 +158,7 @@ exports.getAllUserCustomers = async (req, res) => {
     if (req.query.populate) {
       populate = req.query.populate;
     }
-    const users = await User.find({ ...findQuery })
+    const users = await User.find({ ...findQuery });
     // .populate(populate);
     res.status(200).send({ status: "Ok", data: users });
   } catch (err) {
