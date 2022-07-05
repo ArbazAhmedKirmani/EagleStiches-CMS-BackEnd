@@ -266,6 +266,7 @@ exports.updateOrderById = async (req, res) => {
     const { designFormat, price, salesPersonId, orderStatus } = req.body;
     const userId = req.user._id;
     const salesPerson = await SalesPerson.findById({ _id: salesPersonId });
+    const foundOrder = Order.findById({ _id: id }).populate("createdBy");
 
     await Order.findOneAndUpdate(
       { _id: id },
