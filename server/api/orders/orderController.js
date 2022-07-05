@@ -40,6 +40,8 @@ exports.createOrder = async (req, res) => {
     const userId = req.user._id;
     const userRole = req.user.role;
 
+    const user = await User.findById({_id : userId});
+
     const zip = new JSZip();
     const files = req?.files?.files;
 
@@ -119,6 +121,7 @@ exports.createOrder = async (req, res) => {
                   shape,
                   patchCategory,
                   placement,
+                  salesPerson : user.salesPerson ? user.salesPerson : null,
                   createdBy: userId,
                   modifiedBy,
                   isDeleted: false,
@@ -174,6 +177,7 @@ exports.createOrder = async (req, res) => {
         shape,
         patchCategory,
         placement,
+        salesPerson : user.salesPerson ? user.salesPerson : null,
         createdBy: userId,
         modifiedBy,
         isDeleted: false,
