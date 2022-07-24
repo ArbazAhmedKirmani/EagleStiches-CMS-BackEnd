@@ -6,6 +6,15 @@ const FormatModel = mongoose.Schema(
       type: String,
       required: true,
     },
+    orderType: {
+      type: String,
+      trim: true,
+      enum: {
+        values: ["Custom Patch", "Digitizing", "Vector Art"],
+        default: "Digitizing",
+      },
+      required: true,
+    },
   },
   { timestamps: true }
 );

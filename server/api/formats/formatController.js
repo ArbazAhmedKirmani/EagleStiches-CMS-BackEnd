@@ -3,9 +3,10 @@ const Order = require("../orders/orderModel");
 
 exports.createFormat = async (req, res) => {
   try {
-    const { formatName } = req.body;
+    const { formatName, orderType } = req.body;
     const format = new Format({
       formatName,
+      orderType,
     });
     await format.save();
     res.status(200).send({

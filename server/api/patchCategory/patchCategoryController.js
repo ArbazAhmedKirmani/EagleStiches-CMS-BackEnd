@@ -3,9 +3,10 @@ const Order = require("../orders/orderModel");
 
 exports.createPatchCategory = async (req, res) => {
   try {
-    const { patchCategoryName } = req.body;
+    const { patchCategoryName, orderType } = req.body;
     const patchCategory = new PatchCategory({
       patchCategoryName,
+      orderType,
     });
     await patchCategory.save();
     res.status(200).send({
