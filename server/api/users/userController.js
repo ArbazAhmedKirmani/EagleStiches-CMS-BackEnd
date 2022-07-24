@@ -30,7 +30,7 @@ exports.createUser = async (req, res) => {
       salesPerson: req.body.salesPerson,
       role: req.body.role,
       confirmed: true,
-      password: '123456789'
+      password: "123456789",
     };
     await User.create(userData);
 
@@ -73,7 +73,7 @@ exports.updateUserByID = async (req, res) => {
       salesPerson: req.body.salesPerson,
       confirmed: true,
     };
-    await User.findOneAndUpdate(user_id, userData);
+    await User.findOneAndUpdate({ _id: user_id }, userData);
 
     let findQuery = { isDeleted: false, role: { $ne: "Customer" } };
     let top = 10;
