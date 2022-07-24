@@ -108,7 +108,7 @@ exports.updatePatchCategoryById = async (req, res) => {
 exports.deletePatchCategoryById = async (req, res) => {
   try {
     const { id } = req.params;
-    const order = Order.findOne({ patchCategory: id });
+    const order = await Order.findOne({ patchCategory: id });
     if (order) {
       res.status(400).send({ status: "Error", message: "record exist!" });
     } else {
