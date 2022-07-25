@@ -10,10 +10,12 @@ const InvoiceModel = mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "User",
     },
-    orders: {
-      type: mongoose.Schema.ObjectId,
-      ref: "order",
-    },
+    orders: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "order",
+      },
+    ],
     dateFrom: {
       type: Date,
       required: true,

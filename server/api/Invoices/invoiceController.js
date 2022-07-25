@@ -32,8 +32,14 @@ exports.createInvoices = async (req, res) => {
     let invoiceFilePath =
       path.join(__dirname, "../../../", "public") +
       "/" +
-      `invocieNumber` +
+      invocieNumber +
       ".pdf";
+
+    const fileUrl =
+      req.protocol +
+      "://" +
+      req.get("host") +
+      invoiceFilePath.split(path.join(__dirname, "../../../", "public")).pop();
 
     if (dateFrom !== "" && dateTo !== "") {
       findQuery.createdAt = {
@@ -42,7 +48,12 @@ exports.createInvoices = async (req, res) => {
       };
     }
 
+    const ids = [];
+
     const orders = await Order.find(findQuery).populate("salesPerson");
+    const orderIds = await Order.find(findQuery).select("_id");
+
+    orderIds.map((e) => ids.push(e._id));
 
     let subtotal = orders.reduce(function (accumulator, curValue) {
       return accumulator + curValue.price;
@@ -60,10 +71,11 @@ exports.createInvoices = async (req, res) => {
       resolve.then(async (data) => {
         const invoice = new Invoice({
           invoiceNumber: invocieNumber,
+          orders: ids,
           customer,
           dateFrom,
           dateTo,
-          invoiceUrl: invoiceFilePath,
+          invoiceUrl: fileUrl,
         });
         await invoice.save();
         res.status(200).send({
@@ -83,7 +95,7 @@ exports.getAllInvoices = async (req, res) => {
     let findQuery = {};
     let top = 10;
     let skip = 0;
-    let populate = "";
+    let populate = "orders";
     let sort = "";
 
     if (req.query.name) {
@@ -125,7 +137,7 @@ exports.getAllInvoices = async (req, res) => {
 exports.getInvoiceById = async (req, res) => {
   try {
     const { id } = req.params;
-    const invoice = await Invoice.findById({ _id: id });
+    const invoice = await Invoice.findById({ _id: id }).populate("orders");
     res.status(200).send({ status: "Ok", data: invoice });
   } catch (err) {
     console.log("Error :", err);
