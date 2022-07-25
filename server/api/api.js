@@ -9,5 +9,6 @@ router.use("/placement", require("./placement/placementRoutes"));
 router.use("/unit", require("./units/unitsRoutes"));
 router.use("/salesPerson", require("./salesPerson/salesPersonRoutes"));
 router.use("/pieces", require("./pieces/piecesRoutes"));
+router.use("/invoices", require("./Invoices/inoiceRoutes"));
 
 module.exports = router;
