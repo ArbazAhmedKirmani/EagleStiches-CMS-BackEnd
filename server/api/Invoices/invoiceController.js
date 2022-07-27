@@ -6,9 +6,9 @@ const path = require("path");
 
 exports.createInvoices = async (req, res) => {
   try {
-    let characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let characters = "0123456789";
     let result = "";
-    let length = 10; // Customize the length here.
+    let length = 4; // Customize the length here.
     for (let i = length; i > 0; --i)
       result += characters[Math.round(Math.random() * (characters.length - 1))];
 
@@ -23,7 +23,7 @@ exports.createInvoices = async (req, res) => {
       "-INV-" +
       result;
 
-    const { customer, dateFrom, dateTo } = req.body;
+    const { customer, dateFrom, dateTo, userId } = req.body;
 
     const findQuery = { createdBy: customer, orderStatus: "delivered" };
 
@@ -53,7 +53,7 @@ exports.createInvoices = async (req, res) => {
     const orders = await Order.find(findQuery).populate("salesPerson");
     const orderIds = await Order.find(findQuery).select("_id");
 
-    orderIds.map((e) => ids.push(e._id));
+    orderIds.forEach((e) => ids.push(e._id));
 
     let subtotal = orders.reduce(function (accumulator, curValue) {
       return accumulator + curValue.price;
@@ -78,9 +78,11 @@ exports.createInvoices = async (req, res) => {
           invoiceUrl: fileUrl,
         });
         await invoice.save();
+        let invoices = await Invoice.find({ customer: userId });
         res.status(200).send({
           status: "Ok",
           message: "record created successfully",
+          data: invoices,
         });
       });
     });
