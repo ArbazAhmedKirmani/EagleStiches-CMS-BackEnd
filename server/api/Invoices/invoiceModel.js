@@ -28,6 +28,23 @@ const InvoiceModel = mongoose.Schema(
       type: String,
       required: true,
     },
+    totalAmount: {
+      type: Number,
+    },
+    paidAmount: {
+      type: Number,
+    },
+    balanceAmount: {
+      type: Number,
+    },
+    status: {
+      type: String,
+      trim: true,
+      enum: {
+        values: ["Paid", "Partial Paid", "Unpaid"],
+        default: "Unpaid",
+      },
+    },
   },
   { timestamps: true }
 );

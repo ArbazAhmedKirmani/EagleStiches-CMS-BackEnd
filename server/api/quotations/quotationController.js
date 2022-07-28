@@ -1,13 +1,12 @@
-const Order = require("./orderModel");
+const Quotation = require("./quotationModel");
 const User = require("../users/userModel");
-const SalesPerson = require("../salesPerson/salePersonModel");
 const path = require("path");
 const fs = require("fs");
 const JSZip = require("jszip");
 const mailerConfig = require("../../utils/serviceVariables");
 const nodemailer = require("nodemailer");
 
-exports.createOrder = async (req, res) => {
+exports.createQuotation = async (req, res) => {
   try {
     const {
       designFormat,
@@ -37,10 +36,8 @@ exports.createOrder = async (req, res) => {
       placement,
       discount,
       totalPrice,
-      quotationId,
       formats,
       freeOrder,
-      Invoiced,
     } = req.body;
 
     const userId = req.user._id;
@@ -52,11 +49,11 @@ exports.createOrder = async (req, res) => {
     const files = req?.files?.files;
 
     if (files?.length > 0) {
-      const orderFileName = (Math.random() + 1).toString(36).substring(7);
+      const quotationFileName = (Math.random() + 1).toString(36).substring(7);
       let zipFilePath =
         path.join(__dirname, "../../../", "public") +
         "/" +
-        `orderFiles_${orderFileName}` +
+        `quotationFiles_${quotationFileName}` +
         ".zip";
       const fileUrl_dataFillZip =
         req.protocol +
@@ -104,7 +101,7 @@ exports.createOrder = async (req, res) => {
               // JSZip generates a readable stream with a "end" event,
               // but is piped here in a writable stream which emits a "finish" event.
               try {
-                const order = new Order({
+                const quotation = new Quotation({
                   $inc: { orderNumber: 1 },
                   designFormat,
                   orderMode,
@@ -135,12 +132,10 @@ exports.createOrder = async (req, res) => {
                   deletedBy,
                   discount,
                   totalPrice,
-                  quotationId,
                   formats,
                   freeOrder,
-                  Invoiced,
                 });
-                await order.save();
+                await quotation.save();
                 res.status(200).send({
                   status: "Ok",
                   message: "record created successfully",
@@ -166,7 +161,7 @@ exports.createOrder = async (req, res) => {
             .send({ status: "Error", message: "Error Check Server Logs!" });
         });
     } else {
-      const order = new Order({
+      const quotation = new Quotation({
         $inc: { orderNumber: 1 },
         designFormat,
         orderMode,
@@ -197,12 +192,10 @@ exports.createOrder = async (req, res) => {
         deletedBy,
         discount,
         totalPrice,
-        quotationId,
         formats,
         freeOrder,
-        Invoiced,
       });
-      await order.save();
+      await quotation.save();
       res.status(200).send({
         status: "Ok",
         message: "record created successfully",
@@ -214,7 +207,7 @@ exports.createOrder = async (req, res) => {
   }
 };
 
-exports.getAllOrders = async (req, res) => {
+exports.getAllQuotations = async (req, res) => {
   try {
     let findQuery = { isDeleted: false };
     let top = 10;
@@ -244,8 +237,8 @@ exports.getAllOrders = async (req, res) => {
     if (req.query.sort) {
       sort = req.query.sort;
     }
-    let totalCount = await Order.countDocuments({ ...findQuery });
-    const order = await Order.find({ ...findQuery })
+    let totalCount = await Quotation.countDocuments({ ...findQuery });
+    const quotations = await Quotation.find({ ...findQuery })
       .populate(populate)
       .skip(skip)
       .limit(top)
@@ -253,7 +246,7 @@ exports.getAllOrders = async (req, res) => {
 
     res.status(200).send({
       status: "Ok",
-      data: order,
+      data: quotations,
       count: totalCount,
     });
   } catch (err) {
@@ -262,7 +255,7 @@ exports.getAllOrders = async (req, res) => {
   }
 };
 
-exports.getOrderById = async (req, res) => {
+exports.getQuotationById = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -273,40 +266,83 @@ exports.getOrderById = async (req, res) => {
       populate = req.query.populate;
     }
 
-    const Order = await Order.findById({ _id: id }).populate(populate);
+    const quotation = await Quotation.findById({ _id: id }).populate(populate);
 
-    res.status(200).send({ status: "Ok", data: Order });
+    res.status(200).send({ status: "Ok", data: quotation });
   } catch (err) {
     console.log("Error :", err);
     res.status(400).send({ status: "Error", message: "check server logs" });
   }
 };
 
-exports.updateOrderById = async (req, res) => {
+exports.updateQuotationById = async (req, res) => {
   try {
     const { id } = req.params;
-    const { designFormat, price, salesPersonId, orderStatus } = req.body;
+    const {
+      designFormat,
+      orderMode,
+      orderStatus,
+      orderHistory,
+      poNumber,
+      uploadFileUrl,
+      link,
+      designName,
+      format,
+      dimensionHeight,
+      dimensionWeight,
+      numberOfColor,
+      fabric,
+      additionalInformation,
+      isRushOrder,
+      isBlending,
+      orderType,
+      numberOfPieces,
+      shape,
+      patchCategory,
+      placement,
+      salesPerson,
+      discount,
+      totalPrice,
+      formats,
+      freeOrder,
+    } = req.body;
     const userId = req.user._id;
-    const salesPerson = await SalesPerson.findById({ _id: salesPersonId });
-    const foundOrder = await Order.findById({ _id: id }).populate("createdBy");
+    const foundQuotation = await Quotation.findById({ _id: id }).populate(
+      "createdBy"
+    );
 
-    await Order.findOneAndUpdate(
+    await Quotation.findOneAndUpdate(
       { _id: id },
       {
         $set: {
-          designFormat: designFormat,
-          orderStatus: orderStatus,
-          price: price,
-          salesPerson: salesPersonId,
+          designFormat,
+          orderMode,
+          orderStatus,
+          orderHistory,
+          poNumber,
+          uploadFileUrl,
+          link,
+          designName,
+          format,
+          dimensionHeight,
+          dimensionWeight,
+          numberOfColor,
+          fabric,
+          additionalInformation,
+          isRushOrder,
+          isBlending,
+          orderType,
+          numberOfPieces,
+          shape,
+          patchCategory,
+          placement,
+          salesPerson,
+          discount,
+          totalPrice,
+          formats,
+          freeOrder,
           modifiedBy: userId,
         },
-      }
-    );
-
-    await User.findOneAndUpdate(
-      { _id: userId },
-      {
-        salesPerson: salesPersonId,
       }
     );
 
@@ -316,8 +352,8 @@ exports.updateOrderById = async (req, res) => {
     let populate = "createdBy";
     let sort = "";
 
-    let totalCount = await Order.countDocuments({ ...findQuery });
-    const order = await Order.find({ ...findQuery })
+    let totalCount = await Quotation.countDocuments({ ...findQuery });
+    const quotation = await Quotation.find({ ...findQuery })
       .populate(populate)
       .skip(skip)
       .limit(top)
@@ -326,36 +362,30 @@ exports.updateOrderById = async (req, res) => {
     // Send confirmation Email
 
     // create reusable transporter object using the default SMTP transport
-    let transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: {
-        user: mailerConfig.email, // generated ethereal user
-        pass: mailerConfig.password, // generated ethereal password
-      },
-    });
+    if (req.user.role === "Super Admin") {
+      let transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: mailerConfig.email, // generated ethereal user
+          pass: mailerConfig.password, // generated ethereal password
+        },
+      });
 
-    // send mail with defined transport object
-    await transporter.sendMail({
-      from: "Eagle Stiches", // sender address
-      to: foundOrder.createdBy.email, // list of receivers
-      subject: `Order # ${foundOrder._id}`, // Subject line
-      html: ` <b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Price</b> # ${price} <br> <b>Sales Person</b> # ${salesPerson.salesPersonName}`, // html body
-    });
-
-    await transporter.sendMail({
-      from: "Eagle Stiches", // sender address
-      to: salesPerson.salesPersonEmail, // list of receivers
-      subject: `Order # ${foundOrder._id}`, // Subject line
-      text: `Your Order Details for the Design # ${foundOrder.designName}`, // plain text body
-      html: `<b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Order Files</b> # ${foundOrder.uploadFileUrl}`, // html body
-    });
+      // send mail with defined transport object
+      await transporter.sendMail({
+        from: "Eagle Stiches", // sender address
+        to: foundQuotation.createdBy.email, // list of receivers
+        subject: `Quotation # ${foundQuotation._id}`, // Subject line
+        html: ` <b> Your Order Details for the Design # ${foundQuotation.designName} </b> <br> <b>Price</b> # ${price} <br>`, // html body
+      });
+    }
 
     res.status(200).send({
       status: "Ok",
       message: "record updated successfully",
-      data: order,
+      data: quotation,
       count: totalCount,
     });
   } catch (err) {
@@ -364,12 +394,12 @@ exports.updateOrderById = async (req, res) => {
   }
 };
 
-exports.deleteOrderById = async (req, res) => {
+exports.deleteQuotationById = async (req, res) => {
   try {
     const { id } = req.params;
     const date = new Date();
     const userId = req.user._id;
-    await Order.findOneAndUpdate(
+    await Quotation.findOneAndUpdate(
       { _id: id },
       {
         isDeleted: true,
@@ -385,8 +415,8 @@ exports.deleteOrderById = async (req, res) => {
     let populate = "";
     let sort = "";
 
-    let totalCount = await Order.countDocuments({ ...findQuery });
-    const order = await Order.find({ ...findQuery })
+    let totalCount = await Quotation.countDocuments({ ...findQuery });
+    const quotation = await Quotation.find({ ...findQuery })
       .populate(populate)
       .skip(skip)
       .limit(top)
@@ -395,68 +425,7 @@ exports.deleteOrderById = async (req, res) => {
     res.status(200).send({
       status: "Ok",
       message: "record deleted successfully",
-      data: order,
-      count: totalCount,
-    });
-  } catch (err) {
-    console.log("Error :", err);
-    res.status(400).send({ status: "Error", message: "check server logs" });
-  }
-};
-
-exports.updateOrderStatusById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { orderStatus } = req.body;
-    const userId = req.user._id;
-
-    await Order.findOneAndUpdate(
-      { _id: id },
-      {
-        $set: {
-          orderStatus: orderStatus,
-          modifiedBy: userId,
-        },
-      }
-    );
-
-    let findQuery = { isDeleted: false };
-    let top = 10;
-    let skip = 0;
-    let populate = "";
-    let sort = "";
-
-    let totalCount = await Order.countDocuments({ ...findQuery });
-    const order = await Order.find({ ...findQuery })
-      .populate(populate)
-      .skip(skip)
-      .limit(top)
-      .sort(sort);
-
-    // Send confirmation Email
-
-    // create reusable transporter object using the default SMTP transport
-    // let transporter = nodemailer.createTransport({
-    //   service: "gmail",
-    //   auth: {
-    //     user: mailerConfig.email, // generated ethereal user
-    //     pass: mailerConfig.password, // generated ethereal password
-    //   },
-    // });
-
-    // send mail with defined transport object
-    // let info = await transporter.sendMail({
-    //   from: "Eagle Stiches", // sender address
-    //   to: foundOrder.createdBy.email, // list of receivers
-    //   subject: `Order # ${foundOrder._id}`, // Subject line
-    //   text: `Your Order Details for the Design # ${foundOrder.designName}`, // plain text body
-    //   html: `<b>Price</b> # ${price} <br> <b>Sales Person</b> # ${salesPerson.salesPersonName}`, // html body
-    // });
-
-    res.status(200).send({
-      status: "Ok",
-      message: "record updated successfully",
-      data: order,
+      data: quotation,
       count: totalCount,
     });
   } catch (err) {

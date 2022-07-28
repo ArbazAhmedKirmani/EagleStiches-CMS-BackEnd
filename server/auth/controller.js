@@ -16,7 +16,32 @@ exports.signin = async (req, res) => {
 
 exports.signup = async (req, res) => {
   try {
-    const { fullName, email, password, phone, country, city, role } = req.body;
+    const {
+      fullName,
+      email,
+      password,
+      phone,
+      country,
+      city,
+      role,
+      comapnyName,
+      menus,
+      features,
+      state,
+      zipCode,
+      postalAddress,
+      deliveryAddress,
+      phoneNumber,
+      cellNumber,
+      fax,
+      website,
+      employeeEmails,
+      references,
+      NTN,
+      advanceAmount,
+      isVerifiedEmail,
+      isVerifiedUser,
+    } = req.body;
 
     const userData = {
       fullName,
@@ -28,6 +53,23 @@ exports.signup = async (req, res) => {
       role,
       isDeleted: false,
       status: true,
+      comapnyName,
+      menus,
+      features,
+      state,
+      zipCode,
+      postalAddress,
+      deliveryAddress,
+      phoneNumber,
+      cellNumber,
+      fax,
+      website,
+      employeeEmails,
+      references,
+      NTN,
+      advanceAmount,
+      isVerifiedEmail,
+      isVerifiedUser,
     };
     const newUser = new User(userData);
     newUser.save(async function (err, user) {
@@ -37,6 +79,21 @@ exports.signup = async (req, res) => {
           .status(400)
           .send({ status: "Error", message: "Incorrect User Data" });
       }
+      let transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: mailerConfig.email, // generated ethereal user
+          pass: mailerConfig.password, // generated ethereal password
+        },
+      });
+      await transporter.sendMail({
+        from: "Eagle Stiches", // sender address
+        to: foundQuotation.createdBy.email, // list of receivers
+        subject: `Email Verification`, // Subject line
+        html: `http://localhost:3002/verify/${user._id}`, // html body
+      });
       res.status(201).send({
         status: "success",
         message: "User Created Successfully. Please Login",
@@ -97,3 +154,27 @@ exports.resetPassword = (req, res) => {
     }
   });
 };
+
+exports.verifyEmail = (req, res) => {
+  try {
+
+    const { id } = req.params;
+
+    await User.findOneAndUpdate(
+      { _id: id },
+      {
+        $set: {
+          isVerifiedEmail : true
+        },
+      }
+    );
+
+    res.status(200).send({
+      status: "Ok",
+      message : "User Verified"
+    });
+  } catch (err) {
+    console.log("Error :", err);
+    res.status(400).send({ status: "Error", message: "check server logs" });
+  }
+}

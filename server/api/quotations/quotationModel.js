@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 
-const OrderModel = mongoose.Schema(
+const QuotationModel = mongoose.Schema(
   {
-    orderNumber: {
+    quotationNumber: {
       type: Number,
       default: 0,
     },
@@ -16,13 +16,6 @@ const OrderModel = mongoose.Schema(
     },
     freeOrder: {
       type: Boolean,
-    },
-    invoiced: {
-      type: Boolean,
-    },
-    quotationId: {
-      type: mongoose.Schema.ObjectId,
-      ref: "quotation",
     },
     designName: {
       type: String,
@@ -170,6 +163,6 @@ const OrderModel = mongoose.Schema(
   { timestamps: true }
 );
 
-const Order = mongoose.model("order", OrderModel);
+const Order = mongoose.model("quotation", QuotationModel);
 
 module.exports = Order;

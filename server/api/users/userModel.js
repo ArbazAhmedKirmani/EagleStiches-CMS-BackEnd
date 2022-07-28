@@ -5,39 +5,80 @@ const UserSchema = new mongoose.Schema(
   {
     fullName: {
       type: String,
-      required: true,
+    },
+    NTN: {
+      type: String,
+    },
+    advanceAmount: {
+      type: Number,
+    },
+    isVerifiedEmail: {
+      type: Boolean,
+      default: false,
+    },
+    isVerifiedUser: {
+      type: Boolean,
+    },
+    References: {
+      type: String,
+    },
+    fax: {
+      type: String,
+    },
+    website: {
+      type: String,
+    },
+    employeeEmails: [
+      {
+        type: String,
+      },
+    ],
+    companyName: {
+      type: String,
+    },
+    menus: [
+      {
+        type: String,
+      },
+    ],
+    features: [
+      {
+        type: String,
+      },
+    ],
+    state: {
+      type: String,
+    },
+    zipCode: {
+      type: Number,
+    },
+    postalAddress: {
+      type: String,
+    },
+    deliveryAddress: {
+      type: String,
     },
     email: {
       type: String,
-      required: true,
     },
     password: {
       type: String,
-      required: true,
       min: 8,
     },
-    phone: {
+    phoneNumber: {
       type: String,
-      required: true,
-      min: 11,
-      max: 11,
-      default: false,
     },
-    isVerified: {
-      type: Boolean,
-      default: false,
+    cellNumber: {
+      type: String,
     },
     country: {
       type: String,
-      required: true,
     },
     city: {
       type: String,
-      required: true,
     },
     status: {
       type: Boolean,
-      required: true,
       default: true,
     },
     modifiedBy: {
@@ -46,7 +87,6 @@ const UserSchema = new mongoose.Schema(
     },
     isDeleted: {
       type: Boolean,
-      required: true,
       default: false,
     },
     deletedAt: {
@@ -70,7 +110,6 @@ const UserSchema = new mongoose.Schema(
         values: ["Super Admin", "Admin", "User", "Customer"],
         default: "Customer",
       },
-      required: true,
     },
     salesPerson: {
       type: mongoose.Schema.Types.ObjectId,
