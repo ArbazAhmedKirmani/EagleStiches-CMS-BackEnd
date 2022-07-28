@@ -423,7 +423,7 @@ exports.updateOrderStatusById = async (req, res) => {
     let findQuery = { isDeleted: false };
     let top = 10;
     let skip = 0;
-    let populate = "";
+    let populate = "createdBy";
     let sort = "";
 
     let totalCount = await Order.countDocuments({ ...findQuery });
