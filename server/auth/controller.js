@@ -155,26 +155,25 @@ exports.resetPassword = (req, res) => {
   });
 };
 
-exports.verifyEmail = (req, res) => {
+exports.verifyEmail = async (req, res) => {
   try {
-
     const { id } = req.params;
 
     await User.findOneAndUpdate(
       { _id: id },
       {
         $set: {
-          isVerifiedEmail : true
+          isVerifiedEmail: true,
         },
       }
     );
 
     res.status(200).send({
       status: "Ok",
-      message : "User Verified"
+      message: "User Verified",
     });
   } catch (err) {
     console.log("Error :", err);
     res.status(400).send({ status: "Error", message: "check server logs" });
   }
-}
+};
