@@ -20,7 +20,6 @@ exports.signup = async (req, res) => {
     const {
       fullName,
       email,
-      password,
       phone,
       country,
       city,
@@ -47,7 +46,7 @@ exports.signup = async (req, res) => {
     const userData = {
       fullName,
       email,
-      password,
+      password: "eaglestiches123",
       phone,
       country,
       city,
