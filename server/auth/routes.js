@@ -5,6 +5,6 @@ const verifyUser = require("./auth").verifyUser;
 router.post("/signin", verifyUser, controller.signin);
 router.post("/signup", controller.signup);
 router.post("/reset-password", controller.resetPassword);
-router.post("/verify/:id", controller.verifyEmail);
+router.get("/verify/:id", controller.verifyEmail);
 
 module.exports = router;
