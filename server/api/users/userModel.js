@@ -5,9 +5,11 @@ const UserSchema = new mongoose.Schema(
   {
     fullName: {
       type: String,
+      trim: true,
     },
     NTN: {
       type: String,
+      trim: true,
     },
     advanceAmount: {
       type: Number,
@@ -18,48 +20,61 @@ const UserSchema = new mongoose.Schema(
     },
     isVerifiedUser: {
       type: Boolean,
+      default: false,
     },
     References: {
       type: String,
+      trim: true,
     },
     fax: {
       type: String,
+      trim: true,
     },
     website: {
       type: String,
+      trim: true,
     },
     employeeEmails: [
       {
         type: String,
+        trim: true,
       },
     ],
     companyName: {
       type: String,
+      trim: true,
     },
     menus: [
       {
         type: String,
+        trim: true,
       },
     ],
     features: [
       {
         type: String,
+        trim: true,
       },
     ],
     state: {
       type: String,
+      trim: true,
     },
     zipCode: {
       type: Number,
+      trim: true,
     },
     postalAddress: {
       type: String,
+      trim: true,
     },
     deliveryAddress: {
       type: String,
+      trim: true,
     },
     email: {
       type: String,
+      trim: true,
     },
     password: {
       type: String,
@@ -67,15 +82,19 @@ const UserSchema = new mongoose.Schema(
     },
     phoneNumber: {
       type: String,
+      trim: true,
     },
     cellNumber: {
       type: String,
+      trim: true,
     },
     country: {
       type: String,
+      trim: true,
     },
     city: {
       type: String,
+      trim: true,
     },
     status: {
       type: Boolean,
