@@ -1,6 +1,7 @@
 const User = require("../api/users/userModel");
 const signToken = require("./auth").signToken;
 const nodemailer = require("nodemailer");
+const mailerConfig = require("../utils/serviceVariables");
 
 exports.signin = async (req, res) => {
   const token = signToken(req.user._id, req.user.role);
@@ -90,7 +91,7 @@ exports.signup = async (req, res) => {
       });
       await transporter.sendMail({
         from: "Eagle Stiches", // sender address
-        to: foundQuotation.createdBy.email, // list of receivers
+        to: user.email, // list of receivers
         subject: `Email Verification`, // Subject line
         html: `http://localhost:3002/verify/${user._id}`, // html body
       });
