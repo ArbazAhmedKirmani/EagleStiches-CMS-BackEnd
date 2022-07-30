@@ -152,6 +152,10 @@ const OrderModel = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+    customerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     modifiedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

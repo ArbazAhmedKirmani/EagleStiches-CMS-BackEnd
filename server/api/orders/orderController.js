@@ -41,6 +41,7 @@ exports.createOrder = async (req, res) => {
       formats,
       freeOrder,
       Invoiced,
+      customerId,
     } = req.body;
 
     const userId = req.user._id;
@@ -139,6 +140,7 @@ exports.createOrder = async (req, res) => {
                   formats,
                   freeOrder,
                   Invoiced,
+                  customerId,
                 });
                 await order.save();
                 res.status(200).send({
@@ -201,6 +203,7 @@ exports.createOrder = async (req, res) => {
         formats,
         freeOrder,
         Invoiced,
+        customerId,
       });
       await order.save();
       res.status(200).send({
