@@ -93,7 +93,7 @@ exports.signup = async (req, res) => {
         from: "Eagle Stiches", // sender address
         to: user.email, // list of receivers
         subject: `Email Verification`, // Subject line
-        html: `http://localhost:3002/auth/verify/${user._id}`, // html body
+        html: `http://localhost:3000/passwordverification/${user._id}`, // html body
       });
       res.status(201).send({
         status: "success",
@@ -178,3 +178,4 @@ exports.verifyEmail = async (req, res) => {
     res.status(400).send({ status: "Error", message: "check server logs" });
   }
 };
+ 
