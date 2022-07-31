@@ -20,11 +20,10 @@ exports.signup = async (req, res) => {
     const {
       fullName,
       email,
-      phone,
       country,
       city,
       role,
-      comapnyName,
+      companyName,
       menus,
       features,
       state,
@@ -47,13 +46,12 @@ exports.signup = async (req, res) => {
       fullName,
       email,
       password: "eaglestiches123",
-      phone,
       country,
       city,
       role,
       isDeleted: false,
       status: true,
-      comapnyName,
+      companyName,
       menus,
       features,
       state,
@@ -177,4 +175,3 @@ exports.verifyEmail = async (req, res) => {
     res.status(400).send({ status: "Error", message: "check server logs" });
   }
 };
- 
