@@ -4,44 +4,38 @@ const User = require("./userModel");
 
 exports.getAllUsers = async (req, res) => {
   try {
-    // let findQuery = { isDeleted: false };
+    let findQuery = { isDeleted: false };
     let top = 10;
     let skip = 0;
     let populate = "";
     let sort = "";
 
-    const query = { ...req.query };
-    delete query.top;
-    delete query.skip;
+    if (req.query.role) {
+      findQuery.role = req.query.role;
+    }
 
-    const findQuery = { ...query, isDeleted: false };
+    if (req.query.isVerifiedEmail) {
+      findQuery.isVerifiedEmail = req.query.isVerifiedEmail;
+    }
 
-    // if (req.query.role) {
-    //   findQuery.role = req.query.role;
-    // }
+    if (req.query.confirmed) {
+      findQuery.confirmed = req.query.confirmed;
+    }
 
-    // if (req.query.isVerifiedEmail) {
-    //   findQuery.isVerifiedEmail = req.query.isVerifiedEmail;
-    // }
+    if (req.query.isDeleted) {
+      findQuery.isDeleted = req.query.isDeleted;
+    }
 
-    // if (req.query.confirmed) {
-    //   findQuery.confirmed = req.query.confirmed;
-    // }
-
-    // if (req.query.isDeleted) {
-    //   findQuery.isDeleted = req.query.isDeleted;
-    // }
-
-    // if (req.query.name) {
-    //   let regex = new RegExp(req.query.name);
-    //   findQuery.name = { $regex: regex };
-    // }
-    // if (req.query.userId) {
-    //   findQuery.createdBy = req.query.userId;
-    // }
-    // if (req.query.populate) {
-    //   populate = req.query.populate;
-    // }
+    if (req.query.name) {
+      let regex = new RegExp(req.query.name);
+      findQuery.name = { $regex: regex };
+    }
+    if (req.query.userId) {
+      findQuery.createdBy = req.query.userId;
+    }
+    if (req.query.populate) {
+      populate = req.query.populate;
+    }
 
     if (req.query.top) {
       top = parseInt(req.query.top);
