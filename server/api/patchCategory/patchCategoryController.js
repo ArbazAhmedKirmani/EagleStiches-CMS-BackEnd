@@ -27,9 +27,12 @@ exports.getAllPatchCategory = async (req, res) => {
     let populate = "";
     let sort = "";
 
-    if (req.query.name) {
-      let regex = new RegExp(req.query.name);
-      findQuery.name = { $regex: regex };
+    if (req.query.patchCategoryName) {
+      findQuery.patchCategoryName = req.query.patchCategoryName;
+    }
+
+    if (req.query.orderType) {
+      findQuery.orderType = req.query.orderType;
     }
     if (req.query.populate) {
       populate = req.query.populate;
