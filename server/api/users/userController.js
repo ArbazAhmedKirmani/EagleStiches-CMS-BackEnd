@@ -123,6 +123,18 @@ exports.createUser = async (req, res) => {
       isVerifiedUser,
     };
 
+    if (userData.role === "Customer") {
+      userData.menus = [
+        "dashboard",
+        "order",
+        "profile",
+        "payment",
+        "invoice",
+        "quotation",
+      ];
+      userData.features = ["paynow", "vieworder", "downloadzip", "editorder"];
+    }
+
     await User.create(userData);
 
     let findQuery = { isDeleted: false };

@@ -69,6 +69,18 @@ exports.signup = async (req, res) => {
       isVerifiedEmail,
       isVerifiedUser,
     };
+
+    if (userData.role === "Customer") {
+      userData.menus = [
+        "dashboard",
+        "order",
+        "profile",
+        "payment",
+        "invoice",
+        "quotation",
+      ];
+      userData.features = ["paynow", "vieworder", "downloadzip", "editorder"];
+    }
     const newUser = new User(userData);
     newUser.save(async function (err, user) {
       if (err) {
