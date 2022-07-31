@@ -177,7 +177,6 @@ exports.updateUserByID = async (req, res) => {
       references,
       NTN,
       advanceAmount,
-      isVerifiedEmail,
       isVerifiedUser,
     } = req.body;
 
