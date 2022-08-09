@@ -276,9 +276,9 @@ exports.getOrderById = async (req, res) => {
       populate = req.query.populate;
     }
 
-    const Order = await Order.findById({ _id: id }).populate(populate);
+    const Orders = await Order.findById({ _id: id }).populate(populate);
 
-    res.status(200).send({ status: "Ok", data: Order });
+    res.status(200).send({ status: "Ok", data: Orders });
   } catch (err) {
     console.log("Error :", err);
     res.status(400).send({ status: "Error", message: "check server logs" });
@@ -290,8 +290,10 @@ exports.updateOrderById = async (req, res) => {
     const { id } = req.params;
     const { designFormat, price, salesPersonId, orderStatus } = req.body;
     const userId = req.user._id;
-    const salesPerson = await SalesPerson.findById({ _id: salesPersonId });
-    const foundOrder = await Order.findById({ _id: id }).populate("createdBy");
+    // const salesPerson = await SalesPerson.findById({ _id: salesPersonId });
+    const foundOrder = await Order.findById({ _id: id }).populate(
+      "createdBy,salesPerson,customerId"
+    );
 
     await Order.findOneAndUpdate(
       { _id: id },
@@ -300,7 +302,7 @@ exports.updateOrderById = async (req, res) => {
           designFormat: designFormat,
           orderStatus: orderStatus,
           price: price,
-          salesPerson: salesPersonId,
+          // salesPerson: salesPersonId,
           modifiedBy: userId,
         },
       }
@@ -309,7 +311,9 @@ exports.updateOrderById = async (req, res) => {
     await User.findOneAndUpdate(
       { _id: userId },
       {
-        salesPerson: salesPersonId,
+        $set: {
+          salesPerson: salesPersonId,
+        },
       }
     );
 
@@ -340,16 +344,16 @@ exports.updateOrderById = async (req, res) => {
     });
 
     // send mail with defined transport object
-    await transporter.sendMail({
+    foundOrder.customerId?.email && await transporter.sendMail({
       from: "Eagle Stiches", // sender address
-      to: foundOrder.createdBy.email, // list of receivers
+      to: foundOrder.customerId?.email, // list of receivers
       subject: `Order # ${foundOrder._id}`, // Subject line
-      html: ` <b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Price</b> # ${price} <br> <b>Sales Person</b> # ${salesPerson.salesPersonName}`, // html body
+      html: ` <b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Price</b> # ${price} <br> <b>Sales Person</b> # ${foundOrder.salesPerson?.salesPersonName}`, // html body
     });
 
-    await transporter.sendMail({
+    foundOrder.customerId?.employeesEmail && await transporter.sendMail({
       from: "Eagle Stiches", // sender address
-      to: salesPerson.salesPersonEmail, // list of receivers
+      to: foundOrder.customerId?.employeesEmail,// list of receivers
       subject: `Order # ${foundOrder._id}`, // Subject line
       text: `Your Order Details for the Design # ${foundOrder.designName}`, // plain text body
       html: `<b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Order Files</b> # ${foundOrder.uploadFileUrl}`, // html body

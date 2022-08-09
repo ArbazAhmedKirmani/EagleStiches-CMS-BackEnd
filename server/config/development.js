@@ -8,5 +8,5 @@ module.exports = {
   secrets: {
     jwt: process.env.JWT || "gumball",
   },
-  expireTime: 24 * 60 * 10,
+  expireTime: 24 * 60 * 100,
 };
