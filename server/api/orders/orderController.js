@@ -44,6 +44,11 @@ exports.createOrder = async (req, res) => {
       customerId,
     } = req.body;
 
+    const customer = await User.findById({ _id: customerId });
+
+    const patches = patchCategory.split(",");
+    const formates = formats.split(",");
+
     const userId = req.user._id;
     const userRole = req.user.role;
 
@@ -115,7 +120,7 @@ exports.createOrder = async (req, res) => {
                   uploadFileUrl: fileUrl_dataFillZip,
                   link,
                   designName,
-                  format,
+                  format: formates,
                   dimensionHeight,
                   dimensionWeight,
                   numberOfColor,
@@ -126,7 +131,7 @@ exports.createOrder = async (req, res) => {
                   orderType,
                   numberOfPieces,
                   shape,
-                  patchCategory,
+                  patchCategory: patches,
                   placement,
                   salesPerson: user.salesPerson ? user.salesPerson : null,
                   createdBy: userId,
@@ -146,6 +151,20 @@ exports.createOrder = async (req, res) => {
                 res.status(200).send({
                   status: "Ok",
                   message: "record created successfully",
+                });
+
+                await transporter.sendMail({
+                  from: "Eagle Stiches", // sender address
+                  to: customer.email, // list of receivers
+                  subject: `Order # ${order._id}`, // Subject line
+                  html: ` <b> Your Order Details for the Design # ${order.designName} </b> <br> <b>Price</b> # ${price} <br> <b>Sales Person</b> # ${customer.salesPerson.salesPersonName}`, // html body
+                });
+
+                await transporter.sendMail({
+                  from: "Eagle Stiches", // sender address
+                  to: customer.employeeEmails, // list of receivers
+                  subject: `Order # ${order._id}`, // Subject line
+                  html: ` <b> Your Order Details for the Design # ${order.designName} </b> <br> <b>Price</b> # ${price} <br> <b>Sales Person</b> # ${customer.salesPerson.salesPersonName}`, // html body
                 });
               } catch (err) {
                 console.log(
@@ -178,7 +197,7 @@ exports.createOrder = async (req, res) => {
         uploadFileUrl: "",
         link,
         designName,
-        format,
+        format: formates,
         dimensionHeight,
         dimensionWeight,
         numberOfColor,
@@ -189,7 +208,7 @@ exports.createOrder = async (req, res) => {
         orderType,
         numberOfPieces,
         shape,
-        patchCategory,
+        patchCategory: patches,
         placement,
         salesPerson: user.salesPerson ? user.salesPerson : null,
         createdBy: userId,
@@ -211,6 +230,19 @@ exports.createOrder = async (req, res) => {
         message: "record created successfully",
       });
     }
+    await transporter.sendMail({
+      from: "Eagle Stiches", // sender address
+      to: customer.email, // list of receivers
+      subject: `Order # ${order._id}`, // Subject line
+      html: ` <b> Your Order Details for the Design # ${order.designName} </b> <br> <b>Price</b> # ${price} <br> <b>Sales Person</b> # ${customer.salesPerson.salesPersonName}`, // html body
+    });
+
+    await transporter.sendMail({
+      from: "Eagle Stiches", // sender address
+      to: customer.employeeEmails, // list of receivers
+      subject: `Order # ${order._id}`, // Subject line
+      html: ` <b> Your Order Details for the Design # ${order.designName} </b> <br> <b>Price</b> # ${price} <br> <b>Sales Person</b> # ${customer.salesPerson.salesPersonName}`, // html body
+    });
   } catch (err) {
     console.log("Error :", err);
     res.status(400).send({ status: "Error", message: "check server logs" });
@@ -455,6 +487,22 @@ exports.updateOrderStatusById = async (req, res) => {
     //   text: `Your Order Details for the Design # ${foundOrder.designName}`, // plain text body
     //   html: `<b>Price</b> # ${price} <br> <b>Sales Person</b> # ${salesPerson.salesPersonName}`, // html body
     // });
+
+    res.status(200).send({
+      status: "Ok",
+      message: "record updated successfully",
+      data: order,
+      count: totalCount,
+    });
+  } catch (err) {
+    console.log("Error :", err);
+    res.status(400).send({ status: "Error", message: "check server logs" });
+  }
+};
+
+exports.generateOrderPdf = async (req, res) => {
+  try {
+    const { id } = req.params;
 
     res.status(200).send({
       status: "Ok",

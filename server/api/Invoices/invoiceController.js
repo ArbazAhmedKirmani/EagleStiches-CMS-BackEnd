@@ -51,41 +51,49 @@ exports.createInvoices = async (req, res) => {
     const ids = [];
 
     const orders = await Order.find(findQuery).populate("salesPerson");
-    const orderIds = await Order.find(findQuery).select("_id");
 
-    orderIds.forEach((e) => ids.push(e._id));
+    if (orders.length > 0) {
+      const orderIds = await Order.find(findQuery).select("_id");
 
-    let subtotal = orders.reduce(function (accumulator, curValue) {
-      return accumulator + curValue.price;
-    }, 0);
+      orderIds.forEach((e) => ids.push(e._id));
 
-    const invoiceObj = {
-      shipping: user[0],
-      items: orders,
-      subtotal: subtotal,
-      paid: 0,
-      invoice_nr: invocieNumber,
-    };
+      let subtotal = orders.reduce(function (accumulator, curValue) {
+        return accumulator + curValue.price;
+      }, 0);
 
-    createInvoice(invoiceObj, (resolve) => {
-      resolve.then(async (data) => {
-        const invoice = new Invoice({
-          invoiceNumber: invocieNumber,
-          orders: ids,
-          customer,
-          dateFrom,
-          dateTo,
-          invoiceUrl: fileUrl,
-        });
-        await invoice.save();
-        let invoices = await Invoice.find({ customer: userId });
-        res.status(200).send({
-          status: "Ok",
-          message: "record created successfully",
-          data: invoices,
+      const invoiceObj = {
+        shipping: user[0],
+        items: orders,
+        subtotal: subtotal,
+        paid: 0,
+        invoice_nr: invocieNumber,
+      };
+
+      createInvoice(invoiceObj, (resolve) => {
+        resolve.then(async (data) => {
+          const invoice = new Invoice({
+            invoiceNumber: invocieNumber,
+            orders: ids,
+            customer,
+            dateFrom,
+            dateTo,
+            invoiceUrl: fileUrl,
+          });
+          await invoice.save();
+          let invoices = await Invoice.find({ customer: userId });
+          res.status(200).send({
+            status: "Ok",
+            message: "record created successfully",
+            data: invoices,
+          });
         });
       });
-    });
+    } else {
+      res.status(200).send({
+        status: "Error",
+        message: "No Orders Found!",
+      });
+    }
   } catch (err) {
     console.log("Error :", err);
     res.status(400).send({ status: "Error", message: "check server logs" });
@@ -106,6 +114,9 @@ exports.getAllInvoices = async (req, res) => {
     }
     if (req.query.populate) {
       populate = req.query.populate;
+    }
+    if (req.query.customer) {
+      findQuery.customer = req.query.customer;
     }
 
     if (req.query.top) {
