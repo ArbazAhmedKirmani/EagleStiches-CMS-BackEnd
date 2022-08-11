@@ -142,7 +142,14 @@ exports.createUser = async (req, res) => {
         "invoice",
         "quotation",
       ];
-      userData.features = ["paynow", "vieworder", "downloadzip", "editorder"];
+      userData.features = [
+        "paynow",
+        "vieworder",
+        "downloadzip",
+        "editorder",
+        "payinvoice",
+        "viewinvoice",
+      ];
     }
 
     await User.create(userData);
