@@ -34,6 +34,12 @@ const InvoiceModel = mongoose.Schema(
     paidAmount: {
       type: Number,
     },
+    discountAmount: {
+      type: Number,
+    },
+    netAmount: {
+      type: Number,
+    },
     balanceAmount: {
       type: Number,
     },

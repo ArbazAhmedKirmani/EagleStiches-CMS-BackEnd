@@ -44,7 +44,7 @@ exports.createInvoices = async (req, res) => {
     if (dateFrom !== "" && dateTo !== "") {
       findQuery.createdAt = {
         $gte: dateFrom !== "" && new Date(dateFrom),
-        $lt: dateTo !== "" && new Date(dateTo),
+        $lte: dateTo !== "" && new Date(dateTo),
       };
     }
 
@@ -77,6 +77,12 @@ exports.createInvoices = async (req, res) => {
             customer,
             dateFrom,
             dateTo,
+            totalAmount: subtotal,
+            discountAmount: 0,
+            netAmount: 0,
+            paidAmount: 0,
+            balanceAmount: subtotal,
+            status: "Unpaid",
             invoiceUrl: fileUrl,
           });
           await invoice.save();

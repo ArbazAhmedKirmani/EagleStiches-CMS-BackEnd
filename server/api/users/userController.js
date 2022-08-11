@@ -11,7 +11,7 @@ exports.getAllUsers = async (req, res) => {
     let sort = "";
 
     if (req.query.role) {
-      findQuery.role = req.query.role;
+      findQuery["role"] = req.query.role;
     }
 
     if (req.query.isVerifiedEmail) {
@@ -47,6 +47,7 @@ exports.getAllUsers = async (req, res) => {
     if (req.query.sort) {
       sort = req.query.sort;
     }
+    console.log(findQuery);
     let totalCount = await User.countDocuments({ ...findQuery });
     const users = await User.find({ ...findQuery })
       .populate(populate)
