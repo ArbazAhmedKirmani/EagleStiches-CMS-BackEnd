@@ -12,7 +12,7 @@ const OrderModel = mongoose.Schema(
     },
     totalPrice: {
       type: Number,
-      default: null,
+      default: 0,
     },
     freeOrder: {
       type: Boolean,
@@ -94,7 +94,7 @@ const OrderModel = mongoose.Schema(
     },
     price: {
       type: Number,
-      default: null,
+      default: 0,
     },
     pieces: {
       type: mongoose.Schema.ObjectId,

@@ -47,14 +47,23 @@ exports.getAllUsers = async (req, res) => {
     if (req.query.sort) {
       sort = req.query.sort;
     }
-    console.log(findQuery);
+
     let totalCount = await User.countDocuments({ ...findQuery });
-    const users = await User.find({ ...findQuery })
-      .populate(populate)
-      .skip(skip)
-      .limit(top)
-      .sort(sort)
-      .select("-password");
+    let users;
+    if (req.query.role === "user")
+      users = await User.find({ ...findQuery, role: { $ne: "Customer" } })
+        .populate(populate)
+        .skip(skip)
+        .limit(top)
+        .sort(sort)
+        .select("-password");
+    else
+      users = await User.find({ ...findQuery })
+        .populate(populate)
+        .skip(skip)
+        .limit(top)
+        .sort(sort)
+        .select("-password");
 
     res.status(200).send({
       status: "Ok",
@@ -76,7 +85,7 @@ exports.createUser = async (req, res) => {
       country,
       city,
       role,
-      comapnyName,
+      companyName,
       menus,
       features,
       state,
@@ -105,7 +114,7 @@ exports.createUser = async (req, res) => {
       role,
       isDeleted: false,
       status: true,
-      comapnyName,
+      companyName,
       menus,
       features,
       state,
@@ -191,6 +200,9 @@ exports.updateUserByID = async (req, res) => {
       NTN,
       advanceAmount,
       isVerifiedUser,
+      status,
+      companyName,
+      salesPerson,
     } = req.body;
 
     const userData = {
@@ -213,6 +225,9 @@ exports.updateUserByID = async (req, res) => {
       NTN,
       advanceAmount,
       isVerifiedUser,
+      status,
+      companyName,
+      salesPerson,
     };
     await User.findOneAndUpdate({ _id: user_id }, userData);
 

@@ -15,7 +15,6 @@ exports.createOrder = async (req, res) => {
       orderStatus,
       orderHistory,
       poNumber,
-      link,
       createdBy,
       modifiedBy,
       isDeleted,
@@ -44,18 +43,52 @@ exports.createOrder = async (req, res) => {
       customerId,
     } = req.body;
 
+    let characters = "0123456789";
+    let result = "";
+    let length = 4; // Customize the length here.
+    for (let i = length; i > 0; --i)
+      result += characters[Math.round(Math.random() * (characters.length - 1))];
+
+    const date = new Date();
+
+    const newOrderNumber =
+      date.getDate() +
+      "-" +
+      (date.getMonth() + 1) +
+      "-" +
+      date.getFullYear() +
+      "-ORD-" +
+      result;
+
     const customer = await User.findById({ _id: customerId });
 
-    const patches = patchCategory.split(",");
-    const formates = formats.split(",");
+    let patches;
+    let formates;
+    if (patchCategory) {
+      patches = patchCategory.split(",");
+    }
+    if (formats) {
+      formates = formats.split(",");
+    }
 
     const userId = req.user._id;
     const userRole = req.user.role;
+
+    let transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: mailerConfig.email, // generated ethereal user
+        pass: mailerConfig.password, // generated ethereal password
+      },
+    });
 
     const user = await User.findById({ _id: userId });
 
     const zip = new JSZip();
     const files = req?.files?.files;
+    let filePath = "";
 
     if (files?.length > 0) {
       const orderFileName = (Math.random() + 1).toString(36).substring(7);
@@ -74,7 +107,7 @@ exports.createOrder = async (req, res) => {
         files.map((file) => {
           const randomName = (Math.random() + 1).toString(36).substring(7);
           const expension = file.name.split(/[\s.]+/).pop();
-          const filePath = path.join(
+          filePath = path.join(
             __dirname,
             "../../../",
             "public",
@@ -111,14 +144,14 @@ exports.createOrder = async (req, res) => {
               // but is piped here in a writable stream which emits a "finish" event.
               try {
                 const order = new Order({
-                  $inc: { orderNumber: 1 },
+                  newOrderNumber,
                   designFormat,
                   orderMode,
                   orderStatus,
                   orderHistory,
                   poNumber,
                   uploadFileUrl: fileUrl_dataFillZip,
-                  link,
+                  link: filePath,
                   designName,
                   format: formates,
                   dimensionHeight,
@@ -188,14 +221,14 @@ exports.createOrder = async (req, res) => {
         });
     } else {
       const order = new Order({
-        $inc: { orderNumber: 1 },
+        newOrderNumber,
         designFormat,
         orderMode,
         orderStatus,
         orderHistory,
         poNumber,
         uploadFileUrl: "",
-        link,
+        link: filePath,
         designName,
         format: formates,
         dimensionHeight,
@@ -229,20 +262,20 @@ exports.createOrder = async (req, res) => {
         status: "Ok",
         message: "record created successfully",
       });
-    }
-    await transporter.sendMail({
-      from: "Eagle Stiches", // sender address
-      to: customer.email, // list of receivers
-      subject: `Order # ${order._id}`, // Subject line
-      html: ` <b> Your Order Details for the Design # ${order.designName} </b> <br> <b>Price</b> # ${price} <br> <b>Sales Person</b> # ${customer.salesPerson.salesPersonName}`, // html body
-    });
+      await transporter.sendMail({
+        from: "Eagle Stiches", // sender address
+        to: customer.email, // list of receivers
+        subject: `Order # ${order._id}`, // Subject line
+        html: ` <b> Your Order Details for the Design # ${order.designName} </b> <br> <b>Price</b> # Price will be known once your order is Accepted <br> <b>Sales Person</b> # ${customer.salesPerson.salesPersonName}`, // html body
+      });
 
-    await transporter.sendMail({
-      from: "Eagle Stiches", // sender address
-      to: customer.employeeEmails, // list of receivers
-      subject: `Order # ${order._id}`, // Subject line
-      html: ` <b> Your Order Details for the Design # ${order.designName} </b> <br> <b>Price</b> # ${price} <br> <b>Sales Person</b> # ${customer.salesPerson.salesPersonName}`, // html body
-    });
+      await transporter.sendMail({
+        from: "Eagle Stiches", // sender address
+        to: customer.employeeEmails, // list of receivers
+        subject: `Order # ${order._id}`, // Subject line
+        html: ` <b> Your Order Details for the Design # ${order.designName} </b> <br> <b>Price</b> # Price will be known once your order is Accepted <br> <b>Sales Person</b> # ${customer.salesPerson.salesPersonName}`, // html body
+      });
+    }
   } catch (err) {
     console.log("Error :", err);
     res.status(400).send({ status: "Error", message: "check server logs" });
@@ -352,7 +385,7 @@ exports.updateOrderById = async (req, res) => {
     let findQuery = { isDeleted: false };
     let top = 10;
     let skip = 0;
-    let populate = "createdBy";
+    let populate = "customerId";
     let sort = "";
 
     let totalCount = await Order.countDocuments({ ...findQuery });
@@ -376,20 +409,22 @@ exports.updateOrderById = async (req, res) => {
     });
 
     // send mail with defined transport object
-    foundOrder.customerId?.email && await transporter.sendMail({
-      from: "Eagle Stiches", // sender address
-      to: foundOrder.customerId?.email, // list of receivers
-      subject: `Order # ${foundOrder._id}`, // Subject line
-      html: ` <b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Price</b> # ${price} <br> <b>Sales Person</b> # ${foundOrder.salesPerson?.salesPersonName}`, // html body
-    });
+    foundOrder.customerId?.email &&
+      (await transporter.sendMail({
+        from: "Eagle Stiches", // sender address
+        to: foundOrder.customerId?.email, // list of receivers
+        subject: `Order # ${foundOrder._id}`, // Subject line
+        html: ` <b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Price</b> # ${price} <br> <b>Sales Person</b> # ${foundOrder.salesPerson?.salesPersonName}`, // html body
+      }));
 
-    foundOrder.customerId?.employeesEmail && await transporter.sendMail({
-      from: "Eagle Stiches", // sender address
-      to: foundOrder.customerId?.employeesEmail,// list of receivers
-      subject: `Order # ${foundOrder._id}`, // Subject line
-      text: `Your Order Details for the Design # ${foundOrder.designName}`, // plain text body
-      html: `<b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Order Files</b> # ${foundOrder.uploadFileUrl}`, // html body
-    });
+    foundOrder.customerId?.employeesEmail &&
+      (await transporter.sendMail({
+        from: "Eagle Stiches", // sender address
+        to: foundOrder.customerId?.employeesEmail, // list of receivers
+        subject: `Order # ${foundOrder._id}`, // Subject line
+        text: `Your Order Details for the Design # ${foundOrder.designName}`, // plain text body
+        html: `<b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Order Files</b> # ${foundOrder.uploadFileUrl}`, // html body
+      }));
 
     res.status(200).send({
       status: "Ok",
