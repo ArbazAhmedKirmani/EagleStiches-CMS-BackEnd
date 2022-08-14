@@ -122,7 +122,7 @@ exports.signup = async (req, res) => {
           <b>&nbsp; You are very near to create your account on Eagle Stiches</b>
           <br/>
           <br/>
-          &nbsp; <a href="${process.env.PROD_FRONT_URL}/passwordverification/${user._id}" target="_blank">
+          &nbsp; <a href="http://45.14.194.131:3000/passwordverification/${user._id}" target="_blank">
             <input type="button" style="cursor:pointer;box-shadow: 0 0px 5px 0 rgba(0,0,0,0.2), 0 6px 10px 0 rgba(0,0,0,0.19);border-radius: 4px;font-size: 22px;font-weight: bold;border: none;color: white;padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;font-size: 16px; background-color: #cc1616;" value="Verify Email" />
           </a>
           </form>
