@@ -132,7 +132,7 @@ const UserSchema = new mongoose.Schema(
     },
     salesPerson: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "salespersons",
+      ref: "salesPersons",
       default: null,
     },
   },

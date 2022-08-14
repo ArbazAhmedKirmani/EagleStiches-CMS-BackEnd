@@ -1,6 +1,8 @@
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
+const mailerConfig = require("../utils/serviceVariables");
+const nodemailer = require("nodemailer");
 
 exports.decodeBase64Image = async function (image, req, res, fileName, cb) {
   try {
@@ -66,7 +68,7 @@ exports.decodeBase64Image = async function (image, req, res, fileName, cb) {
   }
 };
 
-exports.SavedeleteOrUpdateImages = async function (imgUrls, photos, req, res) {
+exports.SavedeleteOrUpdateFiles = async function (imgUrls, photos, req, res) {
   try {
     let removeImagesNames = [];
 
@@ -85,7 +87,7 @@ exports.SavedeleteOrUpdateImages = async function (imgUrls, photos, req, res) {
         (err) => {
           if (err) console.log(err);
           else {
-            console.log("\nDeleted file: ", fileName);
+            console.log("\nDeleted file: ", name);
           }
         }
       );
@@ -95,5 +97,28 @@ exports.SavedeleteOrUpdateImages = async function (imgUrls, photos, req, res) {
   } catch (err) {
     console.log("Error :", err);
     res.status(400).send({ status: "Error", message: "check server logs" });
+  }
+};
+
+exports.sendEmail = async function (to, subject, emailBody) {
+  try {
+    let transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: mailerConfig.email, // generated ethereal user
+        pass: mailerConfig.password, // generated ethereal password
+      },
+    });
+
+    await transporter.sendMail({
+      from: "Eagle Stiches", // sender address
+      to: to, // list of receivers
+      subject: subject, // Subject line
+      html: emailBody, // html body
+    });
+  } catch (err) {
+    console.log("Error :", err);
   }
 };

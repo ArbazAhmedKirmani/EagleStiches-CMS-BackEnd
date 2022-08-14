@@ -9,13 +9,17 @@ router
   .put(isAuthenticatedUser, controller.updateOrderById)
   .delete(isAuthenticatedUser, controller.deleteOrderById);
 
-  router
-    .route("/")
-    .post(isAuthenticatedUser, controller.createOrder)
-    .get(isAuthenticatedUser, controller.getAllOrders);
+router
+  .route("/orderpdf/:id")
+  .get(isAuthenticatedUser, controller.generateOrderPdf);
 
-    router
-      .route("/status/:id")
-      .put(isAuthenticatedUser, controller.updateOrderStatusById)
+router
+  .route("/")
+  .post(isAuthenticatedUser, controller.createOrder)
+  .get(isAuthenticatedUser, controller.getAllOrders);
+
+router
+  .route("/status/:id")
+  .put(isAuthenticatedUser, controller.updateOrderStatusById);
 
 module.exports = router;

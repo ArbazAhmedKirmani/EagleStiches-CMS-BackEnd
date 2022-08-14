@@ -268,6 +268,43 @@ exports.updateUserByID = async (req, res) => {
   }
 };
 
+exports.updateUserStatus = async (req, res) => {
+  try {
+    const user_id = req.params.id;
+    const { isVerifiedUser } = req.body;
+
+    let transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: mailerConfig.email, // generated ethereal user
+        pass: mailerConfig.password, // generated ethereal password
+      },
+    });
+
+    const userData = {
+      isVerifiedUser,
+    };
+    await User.findOneAndUpdate({ _id: user_id }, userData);
+
+    res.status(200).send({
+      status: "Ok",
+      message: "User Verified successfully!",
+    });
+
+    await transporter.sendMail({
+      from: "Eagle Stiches", // sender address
+      to: req.user.email, // list of receivers
+      subject: `User Verification`, // Subject line
+      html: ` <b> Your user account verified successfully </b> <br> <b>Email</b> # ${req.user.email} <br> <b>Password</b> # eaglestiches123`, // html body
+    });
+  } catch (err) {
+    console.log("Error :", err);
+    res.status(400).send({ status: "Error", message: "Check Server Logs" });
+  }
+};
+
 exports.getUserByID = async (req, res) => {
   try {
     const user_id = req.params.id;

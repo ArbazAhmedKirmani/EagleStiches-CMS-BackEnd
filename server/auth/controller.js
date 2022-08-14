@@ -6,8 +6,18 @@ const mailerConfig = require("../utils/serviceVariables");
 exports.signin = async (req, res) => {
   const token = signToken(req.user._id, req.user.role);
   try {
-    const user = await User.findOne({ _id: req.user._id });
-    return res.status(200).send({ token: token, user: user.toJson() });
+    const user = await User.findOne({
+      _id: req.user._id,
+      isVerifiedUser: true,
+    });
+    if (user !== null) {
+      console.log("inside");
+      return res.status(200).send({ token: token, user: user });
+    } else {
+      return res
+        .status(200)
+        .send({ status: "Error", message: "Your account is not verified!" });
+    }
   } catch (err) {
     return res
       .status(500)

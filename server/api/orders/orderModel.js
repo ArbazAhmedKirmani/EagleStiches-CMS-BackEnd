@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const OrderModel = mongoose.Schema(
   {
     orderNumber: {
-      type: Number,
+      type: String,
       default: 0,
     },
     discount: {
@@ -92,6 +92,16 @@ const OrderModel = mongoose.Schema(
       type: String,
       default: "",
     },
+    orderPdf: {
+      type: String,
+      default: "",
+    },
+    orderfileUrls: [
+      {
+        type: String,
+        default: "",
+      },
+    ],
     price: {
       type: Number,
       default: 0,
