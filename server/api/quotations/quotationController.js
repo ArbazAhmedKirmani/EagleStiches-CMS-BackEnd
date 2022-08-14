@@ -40,6 +40,15 @@ exports.createQuotation = async (req, res) => {
       freeOrder,
     } = req.body;
 
+    let patches;
+    let formates;
+    if (patchCategory) {
+      patches = patchCategory.split(",");
+    }
+    if (formats) {
+      formates = formats.split(",");
+    }
+
     const userId = req.user._id;
     const userRole = req.user.role;
 
@@ -111,7 +120,7 @@ exports.createQuotation = async (req, res) => {
                   uploadFileUrl: fileUrl_dataFillZip,
                   link,
                   designName,
-                  format,
+                  format: formates,
                   dimensionHeight,
                   dimensionWeight,
                   numberOfColor,
@@ -122,7 +131,7 @@ exports.createQuotation = async (req, res) => {
                   orderType,
                   numberOfPieces,
                   shape,
-                  patchCategory,
+                  patchCategory: patches,
                   placement,
                   salesPerson: user.salesPerson ? user.salesPerson : null,
                   createdBy: userId,
@@ -171,7 +180,7 @@ exports.createQuotation = async (req, res) => {
         uploadFileUrl: "",
         link,
         designName,
-        format,
+        format: formates,
         dimensionHeight,
         dimensionWeight,
         numberOfColor,
@@ -182,7 +191,7 @@ exports.createQuotation = async (req, res) => {
         orderType,
         numberOfPieces,
         shape,
-        patchCategory,
+        patchCategory: patches,
         placement,
         salesPerson: user.salesPerson ? user.salesPerson : null,
         createdBy: userId,
