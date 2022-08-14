@@ -837,6 +837,68 @@ exports.updateOrderStatusById = async (req, res) => {
   }
 };
 
+exports.updatePriceById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { price } = req.body;
+    const userId = req.user._id;
+
+    await Order.findOneAndUpdate(
+      { _id: id },
+      {
+        $set: {
+          price: price,
+          orderStatus: "accepted",
+          modifiedBy: userId,
+        },
+      }
+    );
+
+    let findQuery = { isDeleted: false };
+    let top = 10;
+    let skip = 0;
+    let populate = "createdBy";
+    let sort = "";
+
+    let totalCount = await Order.countDocuments({ ...findQuery });
+    const order = await Order.find({ ...findQuery })
+      .populate(populate)
+      .skip(skip)
+      .limit(top)
+      .sort(sort);
+
+    // Send confirmation Email
+
+    // create reusable transporter object using the default SMTP transport
+    // let transporter = nodemailer.createTransport({
+    //   service: "gmail",
+    //   auth: {
+    //     user: mailerConfig.email, // generated ethereal user
+    //     pass: mailerConfig.password, // generated ethereal password
+    //   },
+    // });
+
+    // send mail with defined transport object
+    // let info = await transporter.sendMail({
+    //   from: "Eagle Stiches", // sender address
+    //   to: foundOrder.createdBy.email, // list of receivers
+    //   subject: `Order # ${foundOrder._id}`, // Subject line
+    //   text: `Your Order Details for the Design # ${foundOrder.designName}`, // plain text body
+    //   html: `<b>Price</b> # ${price} <br> <b>Sales Person</b> # ${salesPerson.salesPersonName}`, // html body
+    // });
+
+    res.status(200).send({
+      status: "Ok",
+      message: "record updated successfully",
+      data: order,
+      count: totalCount,
+    });
+  } catch (err) {
+    console.log("Error :", err);
+    res.status(400).send({ status: "Error", message: "check server logs" });
+  }
+};
+
 exports.generateOrderPdf = async (req, res) => {
   try {
     const { id } = req.params;

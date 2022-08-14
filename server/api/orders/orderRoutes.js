@@ -9,6 +9,8 @@ router
   .put(isAuthenticatedUser, controller.updateOrderById)
   .delete(isAuthenticatedUser, controller.deleteOrderById);
 
+router.route("/price/:id").put(isAuthenticatedUser, controller.updatePriceById);
+
 router
   .route("/orderpdf/:id")
   .get(isAuthenticatedUser, controller.generateOrderPdf);
