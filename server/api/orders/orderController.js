@@ -918,6 +918,7 @@ exports.generateOrderPdf = async (req, res) => {
     res.status(200).send({
       status: "Ok",
       message: "record updated successfully",
+      url: fileUrl,
     });
   } catch (err) {
     console.log("Error :", err);

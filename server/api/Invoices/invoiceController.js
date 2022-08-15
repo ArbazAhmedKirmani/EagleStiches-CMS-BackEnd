@@ -25,7 +25,7 @@ exports.createInvoices = async (req, res) => {
 
     const { customer, dateFrom, dateTo, userId } = req.body;
 
-    const findQuery = { createdBy: customer, orderStatus: "delivered" };
+    const findQuery = { customerId: customer, orderStatus: "delivered" };
 
     const user = await User.find({ _id: customer });
 
@@ -41,12 +41,12 @@ exports.createInvoices = async (req, res) => {
       req.get("host") +
       invoiceFilePath.split(path.join(__dirname, "../../../", "public")).pop();
 
-    if (dateFrom !== "" && dateTo !== "") {
-      findQuery.createdAt = {
-        $gte: dateFrom !== "" && new Date(dateFrom),
-        $lte: dateTo !== "" && new Date(dateTo),
-      };
-    }
+    // if (dateFrom !== "" && dateTo !== "") {
+    //   findQuery.createdAt = {
+    //     $gte: dateFrom !== "" && new Date(dateFrom),
+    //     $lte: dateTo !== "" && new Date(dateTo),
+    //   };
+    // }
 
     const ids = [];
 
@@ -90,7 +90,6 @@ exports.createInvoices = async (req, res) => {
           res.status(200).send({
             status: "Ok",
             message: "record created successfully",
-            data: invoices,
           });
         });
       });
