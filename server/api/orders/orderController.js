@@ -843,6 +843,11 @@ exports.updatePriceById = async (req, res) => {
     const { price } = req.body;
     const userId = req.user._id;
 
+    const foundOrder = await Order.findOne({ _id: id });
+    const customer = await User.findById({ _id: customerId }).populate(
+      "salesPerson"
+    );
+
     await Order.findOneAndUpdate(
       { _id: id },
       {
@@ -893,6 +898,12 @@ exports.updatePriceById = async (req, res) => {
       data: order,
       count: totalCount,
     });
+
+    sendEmail(
+      customer.email,
+      `Order # ${foundOrder._id}`,
+      ` <b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Price</b> # Price will be known once your order is Accepted <br> <b>Sales Person</b> # ${customer.salesPerson.salesPersonName}` // html body
+    );
   } catch (err) {
     console.log("Error :", err);
     res.status(400).send({ status: "Error", message: "check server logs" });
