@@ -10,5 +10,6 @@ router.use("/salesPerson", require("./salesPerson/salesPersonRoutes"));
 router.use("/pieces", require("./pieces/piecesRoutes"));
 router.use("/invoices", require("./Invoices/inoiceRoutes"));
 router.use("/quotation", require("./quotations/quotationRoutes"));
+router.use("/country", require("./country/countryRoutes"));
 
 module.exports = router;

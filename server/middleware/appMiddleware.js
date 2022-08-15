@@ -10,7 +10,7 @@ module.exports = function (app) {
   app.use(morgan("dev"));
   app.use(
     cors({
-      origin: "http://45.14.194.131:3000",
+      origin: ["http://45.14.194.131:3000", "http://localhost:3000"],
       optionsSuccessStatus: 200, // For legacy browser support
     })
   );
