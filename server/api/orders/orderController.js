@@ -42,6 +42,7 @@ exports.createOrder = async (req, res) => {
       freeOrder,
       Invoiced,
       customerId,
+      otherFormat,
     } = req.body;
 
     let characters = "0123456789";
@@ -182,6 +183,7 @@ exports.createOrder = async (req, res) => {
                   customerId,
                   orderfileUrls: fileUrls,
                   orderPdf: "",
+                  otherFormat,
                 });
                 await order.save();
                 res.status(200).send({
@@ -259,6 +261,7 @@ exports.createOrder = async (req, res) => {
         customerId,
         orderfileUrls: fileUrls,
         orderPdf: "",
+        otherFormat,
       });
       await order.save();
       res.status(200).send({
@@ -387,6 +390,7 @@ exports.updateOrderById = async (req, res) => {
       customerId,
       orderfileUrls,
       uploadFileUrl,
+      otherFormat,
     } = req.body;
 
     if (orderfileUrls) {
@@ -594,6 +598,7 @@ exports.updateOrderById = async (req, res) => {
                               patchCategory: patches,
                               formats: formates,
                               orderPdf: "",
+                              otherFormat,
                             },
                           }
                         );
@@ -710,6 +715,7 @@ exports.updateOrderById = async (req, res) => {
                           patchCategory: patches,
                           formats: formates,
                           orderPdf: "",
+                          otherFormat,
                         },
                       }
                     );

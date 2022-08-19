@@ -96,6 +96,10 @@ const OrderModel = mongoose.Schema(
       type: String,
       default: "",
     },
+    otherFormat: {
+      type: String,
+      default: "",
+    },
     orderfileUrls: [
       {
         type: String,
