@@ -291,7 +291,14 @@ exports.createOrder = async (req, res) => {
 
 exports.getAllOrders = async (req, res) => {
   try {
-    let findQuery = { isDeleted: false };
+    let findQuery = {
+      isDeleted: false,
+    };
+    if (req.query.data)
+      findQuery = {
+        ...findQuery,
+        ...JSON.parse(req.query.data),
+      };
     let top = 10;
     let skip = 0;
     let populate = "";

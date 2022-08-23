@@ -135,6 +135,26 @@ const UserSchema = new mongoose.Schema(
       ref: "salesPersons",
       default: null,
     },
+    customerAdditionalInfo: {
+      type: String,
+      default: null,
+    },
+    chestCapPrice: {
+      type: String,
+      default: null,
+    },
+    jacketBackPriceStart: {
+      type: String,
+      default: null,
+    },
+    customerAdditionalInfo: {
+      type: String,
+      default: null,
+    },
+    vectorPrice: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
 );

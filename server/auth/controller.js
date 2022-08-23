@@ -181,12 +181,46 @@ exports.resetPassword = (req, res) => {
           res.json({ error: "Cannot saved the data " });
         }
       });
+
       //  Client Side url
-      const url = `http://localhost:3001/reset-password/?token=${resetToken}`;
+      const url = `${PROD_FRONT_URL}/reset-password/?token=${resetToken}`;
       await transporter.sendMail({
         to: user.email,
         subject: "Reset Password",
-        html: `Please click on the link to reset your password: <a href="${url}">>${url}</a>`,
+        html: `<div
+        style="
+          font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS',
+            sans-serif;
+        "
+      >
+        <div style="padding: 12px; background: #dd1b1b; color: white;">
+          <h1>Forget Password - Eagle Stiches</h1>
+        </div>
+        <div style="padding: 12px;">
+          <h3>Hi we found that you make a request to reset your password.</h3>
+          <h3>
+            If this is the case. Please click the button to verify your request
+          </h3>
+          <br />
+          <a
+            style="
+              background: #dd1b1b;
+              color: white;
+              padding: 12px;
+              letter-spacing: 2px;
+              border: none;
+              text-decoration: none;
+              box-shadow: 0 0 2px #dd1b1b;
+            "
+            href=${url};"
+          >
+            Verify Yourself
+          </a>
+          <br />
+          <br />
+          <h3>Otherwise, please ignore this email.</h3>
+        </div>
+      </div>"`,
       });
 
       res.status(200).send({ error: "Success" });

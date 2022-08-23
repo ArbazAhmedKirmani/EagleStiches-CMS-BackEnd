@@ -102,6 +102,10 @@ exports.createUser = async (req, res) => {
       advanceAmount,
       isVerifiedEmail,
       isVerifiedUser,
+      chestCapPrice,
+      jacketBackPriceStart,
+      customerAdditionalInfo,
+      vectorPrice,
     } = req.body;
 
     const userData = {
@@ -131,6 +135,10 @@ exports.createUser = async (req, res) => {
       advanceAmount,
       isVerifiedEmail,
       isVerifiedUser,
+      chestCapPrice,
+      jacketBackPriceStart,
+      customerAdditionalInfo,
+      vectorPrice,
     };
 
     if (userData.role === "Customer") {
@@ -210,6 +218,10 @@ exports.updateUserByID = async (req, res) => {
       status,
       companyName,
       salesPerson,
+      chestCapPrice,
+      jacketBackPriceStart,
+      customerAdditionalInfo,
+      vectorPrice,
     } = req.body;
 
     const userData = {
@@ -235,6 +247,10 @@ exports.updateUserByID = async (req, res) => {
       status,
       companyName,
       salesPerson,
+      chestCapPrice,
+      jacketBackPriceStart,
+      customerAdditionalInfo,
+      vectorPrice,
     };
     await User.findOneAndUpdate({ _id: user_id }, userData);
 
