@@ -25,7 +25,11 @@ exports.createInvoices = async (req, res) => {
 
     const { customer, dateFrom, dateTo, userId } = req.body;
 
-    const findQuery = { customerId: customer, orderStatus: "delivered" };
+    const findQuery = {
+      customerId: customer,
+      orderStatus: "delivered",
+      isInvoiced: false,
+    };
 
     const user = await User.find({ _id: customer });
 
@@ -93,6 +97,17 @@ exports.createInvoices = async (req, res) => {
           });
         });
       });
+
+      orders?.foreach((order) =>
+        Order.findByIdAndUpdate(
+          { _id: order._id },
+          {
+            $set: {
+              isInvoiced: true,
+            },
+          }
+        )
+      );
     } else {
       res.status(200).send({
         status: "Error",

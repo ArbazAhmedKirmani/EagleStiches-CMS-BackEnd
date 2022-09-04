@@ -7,6 +7,15 @@ const mailerConfig = require("../../utils/serviceVariables");
 const nodemailer = require("nodemailer");
 
 exports.createQuotation = async (req, res) => {
+  const quotationNumber =
+    date.getDate() +
+    "-" +
+    (date.getMonth() + 1) +
+    "-" +
+    date.getFullYear() +
+    "-ORD-" +
+    result;
+
   try {
     const {
       designFormat,
@@ -37,6 +46,7 @@ exports.createQuotation = async (req, res) => {
       discount,
       totalPrice,
       formats,
+      customerId,
       freeOrder,
     } = req.body;
 
@@ -111,7 +121,7 @@ exports.createQuotation = async (req, res) => {
               // but is piped here in a writable stream which emits a "finish" event.
               try {
                 const quotation = new Quotation({
-                  $inc: { orderNumber: 1 },
+                  quotationNumber: quotationNumber,
                   designFormat,
                   orderMode,
                   orderStatus,
@@ -143,6 +153,7 @@ exports.createQuotation = async (req, res) => {
                   totalPrice,
                   formats,
                   freeOrder,
+                  customerId,
                 });
                 await quotation.save();
                 res.status(200).send({
@@ -171,7 +182,7 @@ exports.createQuotation = async (req, res) => {
         });
     } else {
       const quotation = new Quotation({
-        $inc: { orderNumber: 1 },
+        quotationNumber: quotationNumber,
         designFormat,
         orderMode,
         orderStatus,
@@ -203,6 +214,7 @@ exports.createQuotation = async (req, res) => {
         totalPrice,
         formats,
         freeOrder,
+        customerId,
       });
       await quotation.save();
       res.status(200).send({
@@ -219,6 +231,11 @@ exports.createQuotation = async (req, res) => {
 exports.getAllQuotations = async (req, res) => {
   try {
     let findQuery = { isDeleted: false };
+    if (req.query.data)
+      findQuery = {
+        ...findQuery,
+        ...JSON.parse(req.query.data),
+      };
     let top = 10;
     let skip = 0;
     let populate = "";

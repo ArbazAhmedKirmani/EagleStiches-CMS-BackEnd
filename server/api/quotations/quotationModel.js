@@ -121,6 +121,10 @@ const QuotationModel = mongoose.Schema(
       },
       required: true,
     },
+    customerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     salesPerson: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "salesPersons",

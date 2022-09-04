@@ -184,6 +184,10 @@ const OrderModel = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+    isInvoiced: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

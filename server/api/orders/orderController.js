@@ -8,6 +8,7 @@ const {
   SavedeleteOrUpdateFiles,
   sendEmail,
 } = require("../../config/commonFunctions");
+const orderMail = require("../../utils/Emails/orderMail");
 
 exports.createOrder = async (req, res) => {
   try {
@@ -88,17 +89,21 @@ exports.createOrder = async (req, res) => {
 
     if (files?.length > 0) {
       const orderFileName = (Math.random() + 1).toString(36).substring(7);
+
       let zipFilePath =
         path.join(__dirname, "../../../", "public") +
         "/" +
         `orderFiles_${orderFileName}` +
         ".zip";
+
       const fileUrl_dataFillZip =
         req.protocol +
         "://" +
         req.get("host") +
         zipFilePath.split(path.join(__dirname, "../../../", "public")).pop();
+
       const storedFiles = [];
+
       const saveFile = new Promise((resolve, reject) => {
         files.map((file) => {
           const randomName = (Math.random() + 1).toString(36).substring(7);
@@ -129,6 +134,7 @@ exports.createOrder = async (req, res) => {
           });
         });
       });
+
       saveFile
         .then((data) => {
           storedFiles.map((storedFile) => {
@@ -184,6 +190,7 @@ exports.createOrder = async (req, res) => {
                   orderfileUrls: fileUrls,
                   orderPdf: "",
                   otherFormat,
+                  isInvoiced: false,
                 });
                 await order.save();
                 res.status(200).send({
@@ -262,6 +269,7 @@ exports.createOrder = async (req, res) => {
         orderfileUrls: fileUrls,
         orderPdf: "",
         otherFormat,
+        isInvoiced: false,
       });
       await order.save();
       res.status(200).send({
@@ -452,18 +460,25 @@ exports.updateOrderById = async (req, res) => {
       if (foundOrder.customerId.email !== undefined) {
         sendEmail(
           foundOrder.customerId.email,
-          `Order # ${foundOrder._id}`,
-          ` <b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Price</b> # ${price} <br> <b>Sales Person</b> # ${foundOrder.salesPerson?.salesPersonName}`
+          "Eagle Stiches - Order Acknowledgement",
+          orderMail(foundOrder.orderNumber, foundOrder.designName)
+          // `Order # ${foundOrder._id}`,
+          // ` <b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Price</b> # Price will be known once your order is Accepted <br> <b>Sales Person</b> # ${customer.salesPerson.salesPersonName}` // html body
         );
+        // sendEmail(
+        //   foundOrder.customerId.email,
+        //   `Order # ${foundOrder._id}`,
+        //   ` <b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Price</b> # ${price} <br> <b>Sales Person</b> # ${foundOrder.salesPerson?.salesPersonName}`
+        // );
       }
 
-      if (foundOrder.customerId?.employeesEmail?.length > 0) {
-        sendEmail(
-          foundOrder.customerId?.employeesEmail,
-          `Order # ${foundOrder._id}`,
-          ` <b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Price</b> # ${price} <br> <b>Sales Person</b> # ${foundOrder.salesPerson?.salesPersonName}`
-        );
-      }
+      // if (foundOrder.customerId?.employeesEmail?.length > 0) {
+      //   sendEmail(
+      //     foundOrder.customerId?.employeesEmail,
+      //     `Order # ${foundOrder._id}`,
+      //     ` <b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Price</b> # ${price} <br> <b>Sales Person</b> # ${foundOrder.salesPerson?.salesPersonName}`
+      //   );
+      // }
 
       res.status(200).send({
         status: "Ok",
@@ -472,6 +487,7 @@ exports.updateOrderById = async (req, res) => {
         count: totalCount,
       });
     };
+
     const updatesFiles = SavedeleteOrUpdateFiles(
       orderfileUrls,
       foundOrder.orderfileUrls,
@@ -857,9 +873,9 @@ exports.updatePriceById = async (req, res) => {
     const userId = req.user._id;
 
     const foundOrder = await Order.findOne({ _id: id });
-    const customer = await User.findById({ _id: customerId }).populate(
-      "salesPerson"
-    );
+    const customer = await User.findById({
+      _id: foundOrder.customerId,
+    }).populate("salesPerson");
 
     await Order.findOneAndUpdate(
       { _id: id },
@@ -914,8 +930,14 @@ exports.updatePriceById = async (req, res) => {
 
     sendEmail(
       customer.email,
-      `Order # ${foundOrder._id}`,
-      ` <b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Price</b> # Price will be known once your order is Accepted <br> <b>Sales Person</b> # ${customer.salesPerson.salesPersonName}` // html body
+      "Eagle Stiches - Order Confirmation",
+      orderMail(
+        foundOrder.orderNumber,
+        foundOrder.designName,
+        customer.salesPerson.salesPersonName
+      )
+      // `Order # ${foundOrder._id}`,
+      // ` <b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Price</b> # Price will be known once your order is Accepted <br> <b>Sales Person</b> # ${customer.salesPerson.salesPersonName}` // html body
     );
   } catch (err) {
     console.log("Error :", err);

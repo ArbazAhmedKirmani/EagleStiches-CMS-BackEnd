@@ -45,9 +45,9 @@ exports.getAllDashboardData = async (req, res) => {
       sort = req.query.sort;
     }
     // let totalCount = await Unit.countDocuments({ ...findQuery });
-    const units = await Order.aggregate([
+    const orderTotalPrice = await Order.aggregate([
       { $group: { totalAmount: { $sum: "totalPrice" } } },
-    ])
+    ]);
     // ({ ...findQuery })
     //   .populate(populate)
     //   .skip(skip)
@@ -56,7 +56,7 @@ exports.getAllDashboardData = async (req, res) => {
 
     res.status(200).send({
       status: "Ok",
-      data: units,
+      data: { orderTotalPrice },
       count: totalCount,
     });
   } catch (err) {
