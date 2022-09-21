@@ -61,6 +61,12 @@ exports.createInvoices = async (req, res) => {
 
       orderIds.forEach((e) => ids.push(e._id));
 
+      await Order.updateMany(
+        { _id: { $in: ids } },
+        { $set: { isInvoiced: true } },
+        { multi: true }
+      );
+
       let subtotal = orders.reduce(function (accumulator, curValue) {
         return accumulator + curValue.price;
       }, 0);
