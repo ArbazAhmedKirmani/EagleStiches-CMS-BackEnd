@@ -278,16 +278,16 @@ exports.createOrder = async (req, res) => {
       });
 
       sendEmail(
-        customer.email,
+        customer?.email,
         `Order # ${order._id}`,
-        ` <b> Your Order Details for the Design # ${order.designName} </b> <br> <b>Price</b> # Price will be known once your order is Accepted <br> <b>Sales Person</b> # ${customer.salesPerson.salesPersonName}` // html body
+        ` <b> Your Order Details for the Design # ${order?.designName} </b> <br> <b>Price</b> # Price will be known once your order is Accepted <br> <b>Sales Person</b> # ${customer?.salesPerson?.salesPersonName}` // html body
       );
 
       if (customer.employeeEmails) {
         sendEmail(
-          customer.employeeEmails,
+          customer?.employeeEmails,
           `Order # ${order._id}`,
-          ` <b> Your Order Details for the Design # ${order.designName} </b> <br> <b>Price</b> # Price will be known once your order is Accepted <br> <b>Sales Person</b> # ${customer.salesPerson.salesPersonName}` // html body
+          ` <b> Your Order Details for the Design # ${order?.designName} </b> <br> <b>Price</b> # Price will be known once your order is Accepted <br> <b>Sales Person</b> # ${customer?.salesPerson?.salesPersonName}` // html body
         );
       }
     }
