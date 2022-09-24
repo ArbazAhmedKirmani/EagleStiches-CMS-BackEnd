@@ -458,7 +458,7 @@ exports.deleteUserByIDCustomers = async (req, res) => {
       { isDeleted: true, deletedAt: date, deletedBy }
     );
 
-    let findQuery = { isDeleted: false, role: "Customer" };
+    let findQuery = { isDeleted: false, role: "Customer", isVerifiedUser: true };
     let top = 10;
     let skip = 0;
     let populate = "";

@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 module.exports = {
   logging: true,
   seed: false,

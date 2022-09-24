@@ -824,7 +824,7 @@ exports.updateOrderStatusById = async (req, res) => {
     let findQuery = { isDeleted: false };
     let top = 10;
     let skip = 0;
-    let populate = "createdBy";
+    let populate = "customerId";
     let sort = "";
 
     let totalCount = await Order.countDocuments({ ...findQuery });

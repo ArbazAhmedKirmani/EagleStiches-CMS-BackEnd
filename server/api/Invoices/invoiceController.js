@@ -97,23 +97,23 @@ exports.createInvoices = async (req, res) => {
           });
           await invoice.save();
           let invoices = await Invoice.find({ customer: userId });
+          orders?.foreach((order) =>
+            Order.findByIdAndUpdate(
+              { _id: order._id },
+              {
+                $set: {
+                  isInvoiced: true,
+                },
+              }
+            )
+          );
           res.status(200).send({
             status: "Ok",
             message: "record created successfully",
+            data: invoices,
           });
         });
       });
-
-      orders?.foreach((order) =>
-        Order.findByIdAndUpdate(
-          { _id: order._id },
-          {
-            $set: {
-              isInvoiced: true,
-            },
-          }
-        )
-      );
     } else {
       res.status(200).send({
         status: "Error",

@@ -2,7 +2,7 @@ const User = require("../api/users/userModel");
 const signToken = require("./auth").signToken;
 const nodemailer = require("nodemailer");
 const mailerConfig = require("../utils/serviceVariables");
-const { verificationEmail } = require("../utils/Emails/verificationEmail");
+const verificationEmail = require("../utils/Emails/verificationEmail");
 
 exports.signin = async (req, res) => {
   const token = signToken(req.user._id, req.user.role);
@@ -109,6 +109,7 @@ exports.signup = async (req, res) => {
           pass: mailerConfig.password, // generated ethereal password
         },
       });
+      
       await transporter.sendMail({
         from: "Eagle Stiches", // sender address
         to: user.email, // list of receivers
@@ -117,7 +118,7 @@ exports.signup = async (req, res) => {
       });
       res.status(201).send({
         status: "success",
-        message: "User Created Successfully. Please Login",
+        message: "An email is sent to your Email Address. Please verify your email to proceed further.",
       });
     });
   } catch (err) {
