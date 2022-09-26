@@ -7,6 +7,12 @@ const mailerConfig = require("../../utils/serviceVariables");
 const nodemailer = require("nodemailer");
 
 exports.createQuotation = async (req, res) => {
+  const date = new Date();
+  let characters = "0123456789";
+  let result = "";
+  let length = 4; // Customize the length here.
+  for (let i = length; i > 0; --i)
+    result += characters[Math.round(Math.random() * (characters.length - 1))];
   const quotationNumber =
     date.getDate() +
     "-" +

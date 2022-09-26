@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const QuotationModel = mongoose.Schema(
   {
     quotationNumber: {
-      type: Number,
+      type: String,
       default: 0,
     },
     discount: {
