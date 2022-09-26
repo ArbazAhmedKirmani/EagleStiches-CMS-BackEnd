@@ -188,6 +188,16 @@ const OrderModel = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    deliveredFiles: [
+      {
+        type: String,
+        default: "",
+      },
+    ],
+    deliveredFilesUrl: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true }
 );

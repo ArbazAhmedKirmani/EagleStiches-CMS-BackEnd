@@ -1033,3 +1033,468 @@ exports.generateOrderPdf = async (req, res) => {
     res.status(400).send({ status: "Error", message: "check server logs" });
   }
 };
+
+exports.saveDeliveredFiles = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const date = new Date();
+
+    const userId = req.user._id;
+    const userRole = req.user.role;
+
+    const fileUrls = [];
+
+    const user = await User.findById({ _id: userId });
+
+    const zip = new JSZip();
+    let files = [];
+    if (Array.isArray(req?.files?.files)) {
+      files = req?.files?.files;
+    } else {
+      files.push(req?.files?.files);
+    }
+    let filePath = "";
+
+    if (files?.length > 0) {
+      const deliveredFileName = (Math.random() + 1).toString(36).substring(7);
+
+      let zipFilePath =
+        path.join(__dirname, "../../../", "public") +
+        "/" +
+        `deliveredFiles_${deliveredFileName}` +
+        ".zip";
+
+      const fileUrl_dataFillZip =
+        req.protocol +
+        "://" +
+        req.get("host") +
+        zipFilePath.split(path.join(__dirname, "../../../", "public")).pop();
+
+      const storedFiles = [];
+
+      const saveFile = new Promise((resolve, reject) => {
+        files.map((file) => {
+          const randomName = (Math.random() + 1).toString(36).substring(7);
+          const expension = file.name.split(/[\s.]+/).pop();
+          filePath =
+            path.join(__dirname, "../../../", "public") +
+            "/" +
+            `File_${randomName}.${expension}`;
+
+          const temURlFile =
+            req.protocol +
+            "://" +
+            req.get("host") +
+            filePath.split(path.join(__dirname, "../../../", "public")).pop();
+
+          fileUrls.push(temURlFile);
+
+          file.mv(filePath, function (err) {
+            if (err) reject("Error");
+            console.log("******************* File Saved *******************");
+            storedFiles.push({
+              path: filePath,
+              name: `File_${randomName}.${expension}`,
+            });
+            if (storedFiles.length === files.length) {
+              resolve("Resolved");
+            }
+          });
+        });
+      });
+
+      saveFile
+        .then((data) => {
+          storedFiles.map((storedFile) => {
+            zip.file(storedFile.name, fs.readFileSync(storedFile.path));
+          });
+
+          zip
+            .generateNodeStream({
+              type: "nodebuffer",
+              streamFiles: true,
+            })
+            .pipe(fs.createWriteStream(zipFilePath))
+            .on("finish", async function () {
+              // JSZip generates a readable stream with a "end" event,
+              // but is piped here in a writable stream which emits a "finish" event.
+              try {
+                await Order.findOneAndUpdate(
+                  { _id: id },
+                  {
+                    $set: {
+                      orderStatus: "delivered",
+                      deliveredFiles: fileUrls,
+                      deliveredFilesUrl: fileUrl_dataFillZip,
+                    },
+                  }
+                );
+                res.status(200).send({
+                  status: "Ok",
+                  message: "Delivered Files Updated Successfully",
+                });
+
+                sendEmail(
+                  customer.email,
+                  `<b> Your Order Details for the Design # ${order.designName} </b>`
+                );
+
+                if (customer.employeeEmails.length > 0) {
+                  sendEmail(
+                    customer.employeeEmails,
+                    `<b> Your Order Details for the Design # ${order.designName} </b>`
+                  );
+                }
+              } catch (err) {
+                console.log(
+                  "*******************Error Check Server Logs*******************"
+                );
+                console.log(err);
+                res
+                  .status(400)
+                  .send({ status: "Error", message: "Invalid Form Fields" });
+              }
+            });
+        })
+        .catch((err) => {
+          console.log(
+            "*******************Error Check Server Logs*******************"
+          );
+          console.log(err);
+          res
+            .status(400)
+            .send({ status: "Error", message: "Error Check Server Logs!" });
+        });
+    } else {
+      await Order.findOneAndUpdate(
+        { _id: id },
+        {
+          $set: {
+            orderStatus: "delivered",
+          },
+        }
+      );
+      res.status(200).send({
+        status: "Ok",
+        message: "Order status updated successfully",
+      });
+
+      // sendEmail(
+      //   customer?.email,
+      //   `Order # ${order._id}`,
+      //   ` <b> Your Order Details for the Design # ${order?.designName} </b> <br> <b>Price</b> # Price will be known once your order is Accepted <br> <b>Sales Person</b> # ${customer?.salesPerson?.salesPersonName}` // html body
+      // );
+
+      // if (customer.employeeEmails) {
+      //   sendEmail(
+      //     customer?.employeeEmails,
+      //     `Order # ${order._id}`,
+      //     ` <b> Your Order Details for the Design # ${order?.designName} </b> <br> <b>Price</b> # Price will be known once your order is Accepted <br> <b>Sales Person</b> # ${customer?.salesPerson?.salesPersonName}` // html body
+      //   );
+      // }
+    }
+  } catch (err) {
+    console.log("Error :", err);
+    res.status(400).send({ status: "Error", message: "check server logs" });
+  }
+};
+
+exports.updateDeliveredFiles = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { deliveredFiles, deliveredFilesUrl } = req.body;
+
+    if (deliveredFiles) {
+      deliveredFiles = deliveredFiles.split(",");
+    } else {
+      deliveredFiles = [];
+    }
+    const zip = new JSZip();
+    let files = [];
+    if (Array.isArray(req?.files?.files)) {
+      files = req?.files?.files;
+    } else {
+      files.push(req?.files?.files);
+    }
+    const zipFileName = deliveredFilesUrl.split("/")[3];
+    const userId = req.user._id;
+    // const salesPerson = await SalesPerson.findById({ _id: salesPersonId });
+    const foundOrder = await Order.findById({ _id: id }).populate(
+      "createdBy,salesPerson,customerId"
+    );
+
+    const recallOrders = async () => {
+      await User.findOneAndUpdate(
+        { _id: userId },
+        {
+          $set: {
+            salesPerson: salesPersonId,
+          },
+        }
+      );
+
+      let findQuery = { isDeleted: false };
+      let top = 10;
+      let skip = 0;
+      let populate = "customerId";
+      let sort = "";
+
+      let totalCount = await Order.countDocuments({ ...findQuery });
+      const order = await Order.find({ ...findQuery })
+        .populate(populate)
+        .skip(skip)
+        .limit(top)
+        .sort(sort);
+
+      // send mail with defined transport object
+
+      if (foundOrder.customerId.email !== undefined) {
+        sendEmail(
+          foundOrder.customerId.email,
+          "Eagle Stiches - Order Acknowledgement",
+          orderMail(foundOrder.orderNumber, foundOrder.designName)
+          // `Order # ${foundOrder._id}`,
+          // ` <b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Price</b> # Price will be known once your order is Accepted <br> <b>Sales Person</b> # ${customer.salesPerson.salesPersonName}` // html body
+        );
+        // sendEmail(
+        //   foundOrder.customerId.email,
+        //   `Order # ${foundOrder._id}`,
+        //   ` <b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Price</b> # ${price} <br> <b>Sales Person</b> # ${foundOrder.salesPerson?.salesPersonName}`
+        // );
+      }
+
+      // if (foundOrder.customerId?.employeesEmail?.length > 0) {
+      //   sendEmail(
+      //     foundOrder.customerId?.employeesEmail,
+      //     `Order # ${foundOrder._id}`,
+      //     ` <b> Your Order Details for the Design # ${foundOrder.designName} </b> <br> <b>Price</b> # ${price} <br> <b>Sales Person</b> # ${foundOrder.salesPerson?.salesPersonName}`
+      //   );
+      // }
+
+      res.status(200).send({
+        status: "Ok",
+        message: "record updated successfully",
+        data: order,
+        count: totalCount,
+      });
+    };
+
+    const updatesFiles = SavedeleteOrUpdateFiles(
+      deliveredFiles,
+      foundOrder.deliveredFiles,
+      req,
+      res
+    );
+
+    Promise.resolve(updatesFiles).then(async (pr) => {
+      if (files?.length > 0) {
+        const deliveredFileName = zipFileName;
+
+        fs.unlink(
+          path.join(__dirname, "../../../", "public") + "/" + deliveredFileName,
+          (err) => {
+            if (err) console.log(err);
+            else {
+              console.log("\nDeleted file: ", deliveredFileName);
+
+              let zipFilePath =
+                path.join(__dirname, "../../../", "public") +
+                "/" +
+                `${deliveredFileName}`;
+              const fileUrl_dataFillZip =
+                req.protocol +
+                "://" +
+                req.get("host") +
+                zipFilePath
+                  .split(path.join(__dirname, "../../../", "public"))
+                  .pop();
+              let storedFiles = [];
+              const saveFile = new Promise((resolve, reject) => {
+                files.map((file) => {
+                  const randomName = (Math.random() + 1)
+                    .toString(36)
+                    .substring(7);
+                  const expension = file.name.split(/[\s.]+/).pop();
+                  filePath =
+                    path.join(__dirname, "../../../", "public") +
+                    "/" +
+                    `File_${randomName}.${expension}`;
+
+                  const temURlFile =
+                    req.protocol +
+                    "://" +
+                    req.get("host") +
+                    filePath
+                      .split(path.join(__dirname, "../../../", "public"))
+                      .pop();
+
+                  pr.push(temURlFile);
+
+                  file.mv(filePath, function (err) {
+                    if (err) reject("Error");
+                    console.log(
+                      "******************* File Saved *******************"
+                    );
+                    storedFiles.push({
+                      path: filePath,
+                      name: `File_${randomName}.${expension}`,
+                    });
+                    if (storedFiles.length === files.length) {
+                      resolve("Resolved");
+                    }
+                  });
+                });
+              });
+
+              let newStoredFiles = [];
+              pr.map((e) => {
+                const pathFile = path.join(
+                  __dirname,
+                  "../../../",
+                  "public",
+                  `${e.split("/")[3]}`
+                );
+                const obj = {};
+                obj.name = e.split("/")[3];
+                obj.path = pathFile;
+                newStoredFiles.push(obj);
+              });
+              saveFile
+                .then((data) => {
+                  newStoredFiles.map((storedFile) => {
+                    zip.file(storedFile.name, fs.readFileSync(storedFile.path));
+                  });
+                  zip
+                    .generateNodeStream({
+                      type: "nodebuffer",
+                      streamFiles: true,
+                    })
+                    .pipe(fs.createWriteStream(zipFilePath))
+                    .on("finish", async function () {
+                      // JSZip generates a readable stream with a "end" event,
+                      // but is piped here in a writable stream which emits a "finish" event.
+                      let filesPaths = orderfileUrls;
+                      if (pr.length > 0) {
+                        filesPaths = pr;
+                      }
+                      try {
+                        await Order.findOneAndUpdate(
+                          { _id: id },
+                          {
+                            $set: {
+                              deliveredFiles: filesPaths,
+                              deliveredFilesUrl: fileUrl_dataFillZip,
+                            },
+                          }
+                        );
+
+                        recallOrders();
+                      } catch (err) {
+                        console.log(
+                          "*******************Error Check Server Logs*******************"
+                        );
+                        console.log(err);
+                        res.status(400).send({
+                          status: "Error",
+                          message: "Invalid Form Fields",
+                        });
+                      }
+                    });
+                })
+                .catch((err) => {
+                  console.log(
+                    "*******************Error Check Server Logs*******************"
+                  );
+                  console.log(err);
+                  res.status(400).send({
+                    status: "Error",
+                    message: "Error Check Server Logs!",
+                  });
+                });
+            }
+          }
+        );
+      } else {
+        const deliveredFileUrls = zipFileName;
+        fs.unlink(
+          path.join(__dirname, "../../../", "public") + "/" + deliveredFileUrls,
+          (err) => {
+            if (err) console.log(err);
+            else {
+              console.log("\nDeleted file: ", deliveredFileUrls);
+
+              let zipFilePath =
+                path.join(__dirname, "../../../", "public") +
+                "/" +
+                `${deliveredFileUrls}`;
+              const fileUrl_dataFillZip =
+                req.protocol +
+                "://" +
+                req.get("host") +
+                zipFilePath
+                  .split(path.join(__dirname, "../../../", "public"))
+                  .pop();
+
+              let newStoredFiles = [];
+              pr.map((e) => {
+                const pathFile = path.join(
+                  __dirname,
+                  "../../../",
+                  "public",
+                  `${e.split("/")[3]}`
+                );
+                const obj = {};
+                obj.name = e.split("/")[3];
+                obj.path = pathFile;
+                newStoredFiles.push(obj);
+              });
+
+              newStoredFiles.map((storedFile) => {
+                zip.file(storedFile.name, fs.readFileSync(storedFile.path));
+              });
+              zip
+                .generateNodeStream({
+                  type: "nodebuffer",
+                  streamFiles: true,
+                })
+                .pipe(fs.createWriteStream(zipFilePath))
+                .on("finish", async function () {
+                  // JSZip generates a readable stream with a "end" event,
+                  // but is piped here in a writable stream which emits a "finish" event.
+                  let filesPaths = orderfileUrls;
+                  if (pr.length > 0) {
+                    filesPaths = pr;
+                  }
+                  try {
+                    await Order.findOneAndUpdate(
+                      { _id: id },
+                      {
+                        $set: {
+                          deliveredFiles: filesPaths,
+                          deliveredFilesUrl: fileUrl_dataFillZip,
+                        },
+                      }
+                    );
+                    recallOrders();
+                  } catch (err) {
+                    console.log(
+                      "*******************Error Check Server Logs*******************"
+                    );
+                    console.log(err);
+                    res.status(400).send({
+                      status: "Error",
+                      message: "Invalid Form Fields",
+                    });
+                  }
+                });
+            }
+          }
+        );
+      }
+    });
+  } catch (err) {
+    console.log("Error :", err);
+    res.status(400).send({ status: "Error", message: "check server logs" });
+  }
+};

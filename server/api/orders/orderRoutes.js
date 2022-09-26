@@ -16,6 +16,13 @@ router
   .get(isAuthenticatedUser, controller.generateOrderPdf);
 
 router
+  .route("/savedeliveredfiles/:id")
+  .get(isAuthenticatedUser, controller.saveDeliveredFiles);
+router
+  .route("/updatedeliveredfiles/:id")
+  .get(isAuthenticatedUser, controller.updateDeliveredFiles);
+
+router
   .route("/")
   .post(isAuthenticatedUser, controller.createOrder)
   .get(isAuthenticatedUser, controller.getAllOrders);
