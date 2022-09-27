@@ -17,10 +17,11 @@ router
 
 router
   .route("/savedeliveredfiles/:id")
-  .get(isAuthenticatedUser, controller.saveDeliveredFiles);
+  .put(isAuthenticatedUser, controller.saveDeliveredFiles);
+
 router
   .route("/updatedeliveredfiles/:id")
-  .get(isAuthenticatedUser, controller.updateDeliveredFiles);
+  .put(isAuthenticatedUser, controller.updateDeliveredFiles);
 
 router
   .route("/")
