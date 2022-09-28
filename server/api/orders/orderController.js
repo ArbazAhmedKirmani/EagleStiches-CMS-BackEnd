@@ -1135,17 +1135,17 @@ exports.saveDeliveredFiles = async (req, res) => {
                   message: "Delivered Files Updated Successfully",
                 });
 
-                sendEmail(
-                  customer.email,
-                  `<b> Your Order Details for the Design # ${order.designName} </b>`
-                );
+                // sendEmail(
+                //   customer.email,
+                //   `<b> Your Order Details for the Design # ${order.designName} </b>`
+                // );
 
-                if (customer.employeeEmails.length > 0) {
-                  sendEmail(
-                    customer.employeeEmails,
-                    `<b> Your Order Details for the Design # ${order.designName} </b>`
-                  );
-                }
+                // if (customer.employeeEmails.length > 0) {
+                //   sendEmail(
+                //     customer.employeeEmails,
+                //     `<b> Your Order Details for the Design # ${order.designName} </b>`
+                //   );
+                // }
               } catch (err) {
                 console.log(
                   "*******************Error Check Server Logs*******************"
