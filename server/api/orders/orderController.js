@@ -83,6 +83,7 @@ exports.createOrder = async (req, res) => {
 
     const user = await User.findById({ _id: userId });
 
+    console.log("req?.files?.files", req?.files?.files);
     const zip = new JSZip();
     const files = req?.files?.files;
     let filePath = "";
@@ -299,6 +300,7 @@ exports.createOrder = async (req, res) => {
 
 exports.getAllOrders = async (req, res) => {
   try {
+    let { top, skip, populate } = req.query;
     let findQuery = {
       isDeleted: false,
     };
@@ -307,10 +309,7 @@ exports.getAllOrders = async (req, res) => {
         ...findQuery,
         ...JSON.parse(req.query.data),
       };
-    let top = 10;
-    let skip = 0;
-    let populate = "";
-    let sort = "";
+    let sort = -1;
 
     if (req.query.name) {
       let regex = new RegExp(req.query.name);
