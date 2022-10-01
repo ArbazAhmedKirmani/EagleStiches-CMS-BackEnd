@@ -22,9 +22,7 @@ exports.createFormat = async (req, res) => {
 exports.getAllFormats = async (req, res) => {
   try {
     let findQuery = {};
-    let top = 10;
-    let skip = 0;
-    let populate = "";
+    let { top, skip, populate } = req.query;
     let sort = "";
 
     if (req.query.name) {
